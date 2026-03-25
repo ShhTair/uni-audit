@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import { Plus, Globe, FileText, AlertCircle, AlertTriangle, GraduationCap } from 'lucide-react';
 import { useUniversities } from '@/lib/api';
-import Header from '@/components/layout/Header';
+import { PageHeader } from '@/components/ui/PageHeader';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
@@ -33,7 +33,7 @@ export default function Dashboard() {
 
   return (
     <>
-      <Header
+      <PageHeader
         title="Universities"
         subtitle="Monitor and audit university admission websites"
         actions={

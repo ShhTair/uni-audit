@@ -1,3 +1,4 @@
+import { Breadcrumbs } from '@/components/ui/Breadcrumbs';
 import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
@@ -31,7 +32,7 @@ import {
   useStartCrawl,
   useStartAnalysis,
 } from '@/lib/api';
-import Header from '@/components/layout/Header';
+import { PageHeader } from '@/components/ui/PageHeader';
 import Card from '@/components/ui/Card';
 import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
@@ -121,13 +122,10 @@ export default function UniversityDetail() {
 
   return (
     <>
-      <Header
+      <Breadcrumbs />
+      <PageHeader
         title={university.name}
         subtitle={`${countryToEmoji(university.country)} ${university.domains.join(', ')}`}
-        breadcrumbs={[
-          { label: 'Universities', path: '/' },
-          { label: university.name },
-        ]}
         actions={
           <div className="flex items-center gap-2">
             {(university.status === 'pending' || university.status === 'failed') && (
