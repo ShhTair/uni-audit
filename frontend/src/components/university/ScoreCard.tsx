@@ -22,7 +22,7 @@ export default function ScoreCard({
   return (
     <motion.div
       className={cn(
-        'flex items-center gap-4 p-4 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface',
+        'flex items-center gap-4 p-4 rounded-xl border border-border-default bg-surface-card',
         className
       )}
       initial={{ opacity: 0, y: 10 }}
@@ -48,7 +48,7 @@ export default function ScoreCard({
         </span>
       </div>
       <div className="min-w-0">
-        <p className="text-xs text-light-muted dark:text-dark-muted truncate">
+        <p className="text-xs text-foreground-muted truncate">
           {label}
         </p>
         <p
@@ -56,12 +56,12 @@ export default function ScoreCard({
             'text-xl font-bold',
             colorByScore !== undefined
               ? getScoreColor(colorByScore)
-              : 'text-light-text dark:text-dark-text'
+              : 'text-foreground'
           )}
         >
           {value}
           {suffix && (
-            <span className="text-sm font-normal text-light-muted dark:text-dark-muted ml-0.5">
+            <span className="text-sm font-normal text-foreground-muted ml-0.5">
               {suffix}
             </span>
           )}

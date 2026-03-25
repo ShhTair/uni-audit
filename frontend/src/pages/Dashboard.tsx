@@ -93,10 +93,10 @@ export default function Dashboard() {
                       {countryToEmoji(uni.country)}
                     </span>
                     <div className="min-w-0">
-                      <h3 className="font-semibold text-light-text dark:text-dark-text truncate">
+                      <h3 className="font-semibold text-foreground truncate">
                         {uni.name}
                       </h3>
-                      <p className="text-xs text-light-muted dark:text-dark-muted">
+                      <p className="text-xs text-foreground-muted">
                         {uni.domains.length} domain{uni.domains.length !== 1 ? 's' : ''}
                       </p>
                     </div>
@@ -120,13 +120,13 @@ export default function Dashboard() {
                     </div>
                     <div className="grid grid-cols-3 gap-3 text-center">
                       <div>
-                        <div className="flex items-center justify-center gap-1 text-light-muted dark:text-dark-muted">
+                        <div className="flex items-center justify-center gap-1 text-foreground-muted">
                           <FileText className="w-3.5 h-3.5" />
                         </div>
-                        <p className="text-sm font-semibold text-light-text dark:text-dark-text">
+                        <p className="text-sm font-semibold text-foreground">
                           {uni.summary.total_pages}
                         </p>
-                        <p className="text-[10px] text-light-muted dark:text-dark-muted">
+                        <p className="text-[10px] text-foreground-muted">
                           Pages
                         </p>
                       </div>
@@ -137,7 +137,7 @@ export default function Dashboard() {
                         <p className="text-sm font-semibold text-red-500">
                           {uni.summary.critical_issues}
                         </p>
-                        <p className="text-[10px] text-light-muted dark:text-dark-muted">
+                        <p className="text-[10px] text-foreground-muted">
                           Critical
                         </p>
                       </div>
@@ -148,7 +148,7 @@ export default function Dashboard() {
                         <p className="text-sm font-semibold text-amber-500">
                           {uni.summary.warnings}
                         </p>
-                        <p className="text-[10px] text-light-muted dark:text-dark-muted">
+                        <p className="text-[10px] text-foreground-muted">
                           Warnings
                         </p>
                       </div>
@@ -158,7 +158,7 @@ export default function Dashboard() {
 
                 {!uni.summary && (
                   <div className="py-6 text-center">
-                    <p className="text-xs text-light-muted dark:text-dark-muted">
+                    <p className="text-xs text-foreground-muted">
                       {uni.status === 'pending'
                         ? 'Waiting to start crawl'
                         : uni.status === 'crawling'
@@ -172,8 +172,8 @@ export default function Dashboard() {
                   </div>
                 )}
 
-                <div className="mt-3 pt-3 border-t border-light-border dark:border-dark-border flex items-center justify-between">
-                  <span className="text-[10px] text-light-muted dark:text-dark-muted">
+                <div className="mt-3 pt-3 border-t border-border-default flex items-center justify-between">
+                  <span className="text-[10px] text-foreground-muted">
                     Added {formatDateShort(uni.created_at)}
                   </span>
                   <span className="text-xs text-brand-primary font-medium">

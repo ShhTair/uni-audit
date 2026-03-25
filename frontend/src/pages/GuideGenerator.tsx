@@ -97,7 +97,7 @@ function ProgressStepper({ currentStep }: { currentStep: StepId }) {
                   ? 'bg-emerald-500'
                   : isActive
                   ? 'bg-brand-primary'
-                  : 'bg-light-border dark:bg-dark-border'
+                  : 'bg-border-subtle'
               )}
             >
               {isCompleted ? (
@@ -109,17 +109,17 @@ function ProgressStepper({ currentStep }: { currentStep: StepId }) {
                   transition={{ repeat: Infinity, duration: 1 }}
                 />
               ) : (
-                <div className="w-2 h-2 rounded-full bg-light-muted dark:bg-dark-muted" />
+                <div className="w-2 h-2 rounded-full bg-surface-hover" />
               )}
             </div>
             <span
               className={cn(
                 'text-sm transition-colors duration-300',
                 isActive
-                  ? 'text-light-text dark:text-dark-text font-semibold'
+                  ? 'text-foreground font-semibold'
                   : isCompleted
                   ? 'text-emerald-500 font-medium'
-                  : 'text-light-muted dark:text-dark-muted'
+                  : 'text-foreground-muted'
               )}
             >
               {step.label}
@@ -150,7 +150,7 @@ function SectionList({
         ) : (
           <XCircle className="w-4 h-4 text-red-500 flex-shrink-0" />
         )}
-        <h4 className="text-sm font-semibold text-light-text dark:text-dark-text">
+        <h4 className="text-sm font-semibold text-foreground">
           {title}
         </h4>
         <Badge variant={isFound ? 'success' : 'critical'} size="sm">
@@ -158,13 +158,13 @@ function SectionList({
         </Badge>
       </div>
       {items.length === 0 ? (
-        <p className="text-xs text-light-muted dark:text-dark-muted italic">None</p>
+        <p className="text-xs text-foreground-muted italic">None</p>
       ) : (
         <ul className="space-y-1.5">
           {items.map((section) => (
             <motion.li
               key={section}
-              className="flex items-center gap-2 text-sm text-light-text dark:text-dark-text"
+              className="flex items-center gap-2 text-sm text-foreground"
               initial={{ opacity: 0, x: isFound ? -8 : 8 }}
               animate={{ opacity: 1, x: 0 }}
             >
@@ -296,10 +296,10 @@ export default function GuideGenerator() {
               </motion.div>
 
               <div className="max-w-lg">
-                <h2 className="text-2xl font-bold text-light-text dark:text-dark-text mb-2">
+                <h2 className="text-2xl font-bold text-foreground mb-2">
                   Generate an Admission Guide
                 </h2>
-                <p className="text-light-muted dark:text-dark-muted leading-relaxed">
+                <p className="text-foreground-muted leading-relaxed">
                   UniAudit will crawl and synthesize all admission-related content
                   from this university's website into a single, structured guide
                   for prospective students — including deadlines, requirements,
@@ -315,14 +315,14 @@ export default function GuideGenerator() {
                 ].map((item) => (
                   <div
                     key={item.label}
-                    className="flex items-start gap-3 p-3 rounded-lg bg-light-hover dark:bg-dark-hover"
+                    className="flex items-start gap-3 p-3 rounded-lg bg-surface-hover bg-surface-hover"
                   >
                     <span className="text-brand-primary mt-0.5 flex-shrink-0">{item.icon}</span>
                     <div>
-                      <p className="text-xs font-semibold text-light-text dark:text-dark-text">
+                      <p className="text-xs font-semibold text-foreground">
                         {item.label}
                       </p>
-                      <p className="text-xs text-light-muted dark:text-dark-muted">{item.sub}</p>
+                      <p className="text-xs text-foreground-muted">{item.sub}</p>
                     </div>
                   </div>
                 ))}
@@ -346,7 +346,7 @@ export default function GuideGenerator() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-4 flex items-center gap-2 text-sm text-light-muted dark:text-dark-muted"
+          className="mb-4 flex items-center gap-2 text-sm text-foreground-muted"
         >
           <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           Guide generated on {formatDate(guide.created_at)}
@@ -385,10 +385,10 @@ export default function GuideGenerator() {
                 </div>
 
                 <div className="text-center">
-                  <h3 className="font-semibold text-light-text dark:text-dark-text mb-1">
+                  <h3 className="font-semibold text-foreground mb-1">
                     Building your guide…
                   </h3>
-                  <p className="text-sm text-light-muted dark:text-dark-muted">
+                  <p className="text-sm text-foreground-muted">
                     This may take a minute
                   </p>
                 </div>
@@ -420,7 +420,7 @@ export default function GuideGenerator() {
                     size="lg"
                     label="Completeness"
                   />
-                  <p className="text-xs text-center text-light-muted dark:text-dark-muted max-w-[120px]">
+                  <p className="text-xs text-center text-foreground-muted max-w-[120px]">
                     How complete the guide is compared to an ideal admission guide
                   </p>
                 </div>
@@ -428,7 +428,7 @@ export default function GuideGenerator() {
 
               {/* Action buttons */}
               <Card variant="default" padding="md" className="flex-1 min-w-[260px]">
-                <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">
+                <h3 className="text-sm font-semibold text-foreground mb-4">
                   Guide Actions
                 </h3>
                 <div className="flex flex-col gap-3">
@@ -462,7 +462,7 @@ export default function GuideGenerator() {
 
             {/* Sections found vs missing */}
             <Card variant="default" padding="md">
-              <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-5">
+              <h3 className="text-sm font-semibold text-foreground mb-5">
                 Section Coverage
               </h3>
               <div className="flex flex-col sm:flex-row gap-8">
@@ -471,7 +471,7 @@ export default function GuideGenerator() {
                   items={guide.sections_found}
                   type="found"
                 />
-                <div className="hidden sm:block w-px bg-light-border dark:bg-dark-border self-stretch" />
+                <div className="hidden sm:block w-px bg-border-subtle self-stretch" />
                 <SectionList
                   title="Sections Missing"
                   items={guide.sections_missing}
@@ -496,7 +496,7 @@ export default function GuideGenerator() {
                 {
                   label: 'Word Count',
                   value: guide.word_count.toLocaleString(),
-                  color: 'text-light-text dark:text-dark-text',
+                  color: 'text-foreground',
                 },
                 {
                   label: 'Completeness',
@@ -515,7 +515,7 @@ export default function GuideGenerator() {
                   transition={{ delay: i * 0.06 }}
                 >
                   <Card variant="outlined" padding="sm">
-                    <p className="text-xs text-light-muted dark:text-dark-muted mb-1">
+                    <p className="text-xs text-foreground-muted mb-1">
                       {stat.label}
                     </p>
                     <p className={cn('text-xl font-bold', stat.color)}>

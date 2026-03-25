@@ -13,11 +13,11 @@ interface CardProps extends Omit<HTMLMotionProps<'div'>, 'children'> {
 
 const variantClasses: Record<CardVariant, string> = {
   default:
-    'bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border',
+    'bg-surface-card border border-border-default',
   elevated:
-    'bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border shadow-lg dark:shadow-2xl dark:shadow-black/20',
+    'bg-surface-card border border-border-default shadow-lg dark:shadow-2xl dark:shadow-black/20',
   outlined:
-    'bg-transparent border border-light-border dark:border-dark-border',
+    'bg-transparent border border-border-default',
 };
 
 const paddingClasses = {

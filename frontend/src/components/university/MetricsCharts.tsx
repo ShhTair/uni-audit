@@ -131,7 +131,7 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
   return (
     <div className={cn('grid grid-cols-1 lg:grid-cols-2 gap-6', className)}>
       <Card variant="default" padding="md">
-        <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">
           Score Radar
         </h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -159,7 +159,7 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
       </Card>
 
       <Card variant="default" padding="md">
-        <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">
           Depth Distribution
         </h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -174,7 +174,7 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
       </Card>
 
       <Card variant="default" padding="md">
-        <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">
           Category Breakdown
         </h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -203,7 +203,7 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
       </Card>
 
       <Card variant="default" padding="md">
-        <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">
           Navigation Difficulty
         </h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -228,7 +228,7 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
       </Card>
 
       <Card variant="default" padding="md">
-        <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">
           Issues by Type
         </h3>
         <ResponsiveContainer width="100%" height={300}>
@@ -252,48 +252,48 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
       </Card>
 
       <Card variant="default" padding="md">
-        <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">
           Country Coverage
         </h3>
         <div className="overflow-x-auto max-h-[280px] overflow-y-auto">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-light-surface dark:bg-dark-surface">
-              <tr className="border-b border-light-border dark:border-dark-border">
-                <th className="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted">
+            <thead className="sticky top-0 bg-surface-card">
+              <tr className="border-b border-border-default">
+                <th className="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider text-foreground-muted">
                   Country
                 </th>
-                <th className="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted">
+                <th className="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider text-foreground-muted">
                   Language
                 </th>
-                <th className="text-right py-2 px-3 text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted">
+                <th className="text-right py-2 px-3 text-xs font-semibold uppercase tracking-wider text-foreground-muted">
                   Pages
                 </th>
-                <th className="text-right py-2 px-3 text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted">
+                <th className="text-right py-2 px-3 text-xs font-semibold uppercase tracking-wider text-foreground-muted">
                   Coverage
                 </th>
               </tr>
             </thead>
-            <tbody className="divide-y divide-light-border dark:divide-dark-border">
+            <tbody className="divide-y divide-border-default">
               {metrics.country_coverage.map((row, i) => (
                 <tr key={i}>
-                  <td className="py-2 px-3 text-light-text dark:text-dark-text">
+                  <td className="py-2 px-3 text-foreground">
                     {row.country}
                   </td>
-                  <td className="py-2 px-3 text-light-muted dark:text-dark-muted">
+                  <td className="py-2 px-3 text-foreground-muted">
                     {row.language}
                   </td>
-                  <td className="py-2 px-3 text-right text-light-text dark:text-dark-text">
+                  <td className="py-2 px-3 text-right text-foreground">
                     {row.pages}
                   </td>
                   <td className="py-2 px-3 text-right">
                     <div className="flex items-center justify-end gap-2">
-                      <div className="w-16 h-1.5 rounded-full bg-light-border dark:bg-dark-border overflow-hidden">
+                      <div className="w-16 h-1.5 rounded-full bg-border-subtle overflow-hidden">
                         <div
                           className="h-full rounded-full gradient-bg"
                           style={{ width: `${row.coverage_score}%` }}
                         />
                       </div>
-                      <span className="text-xs text-light-muted dark:text-dark-muted w-8 text-right">
+                      <span className="text-xs text-foreground-muted w-8 text-right">
                         {row.coverage_score}%
                       </span>
                     </div>
@@ -303,7 +303,7 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
             </tbody>
           </table>
           {metrics.country_coverage.length === 0 && (
-            <p className="py-8 text-center text-sm text-light-muted dark:text-dark-muted">
+            <p className="py-8 text-center text-sm text-foreground-muted">
               No country data available.
             </p>
           )}
@@ -311,7 +311,7 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
       </Card>
 
       <Card variant="default" padding="md">
-        <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">
           Tag Frequency
         </h3>
         <div className="flex flex-wrap gap-2 max-h-[280px] overflow-y-auto">
@@ -321,21 +321,21 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
             return (
               <motion.span
                 key={item.tag}
-                className="px-3 py-1 rounded-full text-xs font-medium border border-light-border dark:border-dark-border text-light-text dark:text-dark-text"
+                className="px-3 py-1 rounded-full text-xs font-medium border border-border-default text-foreground"
                 style={{ fontSize: `${scale * 12}px` }}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.03 }}
               >
                 {item.tag}
-                <span className="ml-1 text-light-muted dark:text-dark-muted">
+                <span className="ml-1 text-foreground-muted">
                   ({item.count})
                 </span>
               </motion.span>
             );
           })}
           {tagData.length === 0 && (
-            <p className="text-sm text-light-muted dark:text-dark-muted">
+            <p className="text-sm text-foreground-muted">
               No tag data available.
             </p>
           )}
@@ -343,10 +343,10 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
       </Card>
 
       <Card variant="default" padding="md">
-        <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">
           Information Depth
         </h3>
-        <p className="text-xs text-light-muted dark:text-dark-muted mb-3">
+        <p className="text-xs text-foreground-muted mb-3">
           How many clicks to reach key information types
         </p>
         <ResponsiveContainer width="100%" height={250}>
@@ -380,7 +380,7 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
       </Card>
 
       <Card variant="default" padding="md" className="lg:col-span-2">
-        <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">
+        <h3 className="text-sm font-semibold text-foreground mb-4">
           Category Completeness
         </h3>
         <div className="space-y-3">
@@ -396,10 +396,10 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
                 className="w-3 h-3 rounded-full shrink-0"
                 style={{ backgroundColor: getCategoryColor(item.category) }}
               />
-              <span className="text-sm text-light-text dark:text-dark-text w-32 truncate">
+              <span className="text-sm text-foreground w-32 truncate">
                 {item.category}
               </span>
-              <div className="flex-1 h-2 rounded-full bg-light-border dark:bg-dark-border overflow-hidden">
+              <div className="flex-1 h-2 rounded-full bg-border-subtle overflow-hidden">
                 <motion.div
                   className="h-full rounded-full"
                   style={{ backgroundColor: getCategoryColor(item.category) }}
@@ -408,13 +408,13 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
                   transition={{ delay: index * 0.05, duration: 0.6 }}
                 />
               </div>
-              <span className="text-xs font-medium text-light-muted dark:text-dark-muted w-10 text-right">
+              <span className="text-xs font-medium text-foreground-muted w-10 text-right">
                 {Math.round(item.score)}%
               </span>
             </motion.div>
           ))}
           {completenessData.length === 0 && (
-            <p className="text-sm text-light-muted dark:text-dark-muted text-center py-6">
+            <p className="text-sm text-foreground-muted text-center py-6">
               No completeness data available.
             </p>
           )}

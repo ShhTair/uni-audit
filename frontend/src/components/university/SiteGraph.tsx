@@ -47,15 +47,15 @@ function CustomNode({ data }: NodeProps) {
       <Handle type="target" position={Position.Top} className="!bg-brand-primary !w-2 !h-2 !border-0" />
       <div
         className={cn(
-          'px-3 py-2 rounded-lg border-2 bg-light-surface dark:bg-dark-surface shadow-lg transition-all',
+          'px-3 py-2 rounded-lg border-2 bg-surface-card shadow-lg transition-all',
           hovered && 'ring-2 ring-brand-primary/50'
         )}
         style={{ borderColor: data.color as string, minWidth: data.size as number }}
       >
-        <p className="text-xs font-medium text-light-text dark:text-dark-text truncate max-w-[150px]">
+        <p className="text-xs font-medium text-foreground truncate max-w-[150px]">
           {data.label as string}
         </p>
-        <p className="text-[10px] text-light-muted dark:text-dark-muted">
+        <p className="text-[10px] text-foreground-muted">
           {data.category as string}
         </p>
       </div>
@@ -196,7 +196,7 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
   const linkTypeToggle = (label: string, key: keyof GraphFilters) => (
-    <label className="flex items-center gap-2 text-sm text-light-text dark:text-dark-text cursor-pointer">
+    <label className="flex items-center gap-2 text-sm text-foreground cursor-pointer">
       <input
         type="checkbox"
         checked={filters[key] as boolean}
@@ -218,13 +218,13 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
             'flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
             showFilters
               ? 'bg-brand-primary/10 text-brand-primary'
-              : 'text-light-muted dark:text-dark-muted hover:bg-light-hover dark:hover:bg-dark-hover'
+              : 'text-foreground-muted hover:bg-surface-hover'
           )}
         >
           <Filter className="w-4 h-4" />
           Filters
         </button>
-        <span className="text-xs text-light-muted dark:text-dark-muted">
+        <span className="text-xs text-foreground-muted">
           {filteredNodes.length} nodes, {filteredEdges.length} edges
         </span>
       </div>
@@ -235,10 +235,10 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="flex flex-wrap gap-4 p-4 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface"
+            className="flex flex-wrap gap-4 p-4 rounded-xl border border-border-default bg-surface-card"
           >
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
                 Link Types
               </p>
               {linkTypeToggle('Header', 'showHeader')}
@@ -248,7 +248,7 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
               {linkTypeToggle('Breadcrumb', 'showBreadcrumb')}
             </div>
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
                 Category
               </p>
               <select
@@ -256,7 +256,7 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
                 onChange={(e) =>
                   setFilters((f) => ({ ...f, category: e.target.value }))
                 }
-                className="px-3 py-1.5 text-sm rounded-lg border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text"
+                className="px-3 py-1.5 text-sm rounded-lg border border-border-default bg-surface-card text-foreground"
               >
                 <option value="">All</option>
                 {categories.map((cat) => (
@@ -267,7 +267,7 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
               </select>
             </div>
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted">
+              <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
                 Max Depth: {filters.maxDepth}
               </p>
               <input
@@ -288,7 +288,7 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
         )}
       </AnimatePresence>
 
-      <div className="h-[600px] rounded-xl border border-light-border dark:border-dark-border overflow-hidden bg-light-surface dark:bg-dark-surface">
+      <div className="h-[600px] rounded-xl border border-border-default overflow-hidden bg-surface-card">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -300,9 +300,9 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
           maxZoom={2}
           defaultEdgeOptions={{ type: 'smoothstep' }}
         >
-          <Controls className="!bg-light-surface dark:!bg-dark-surface !border-light-border dark:!border-dark-border !shadow-lg [&_button]:!bg-light-surface dark:[&_button]:!bg-dark-surface [&_button]:!border-light-border dark:[&_button]:!border-dark-border [&_button]:!text-light-text dark:[&_button]:!text-dark-text" />
+          <Controls className="!bg-surface-card !border-border-default !shadow-lg [&_button]:!bg-surface-card [&_button]:!border-border-default [&_button]:!text-foreground" />
           <MiniMap
-            className="!bg-light-surface dark:!bg-dark-surface !border-light-border dark:!border-dark-border"
+            className="!bg-surface-card  !border-border-default "
             nodeColor={(node) => (node.data.color as string) || '#6366F1'}
             maskColor="rgba(0,0,0,0.1)"
           />

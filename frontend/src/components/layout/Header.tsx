@@ -26,10 +26,10 @@ export default function Header({
   return (
     <header className={cn('mb-6', className)}>
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav className="flex items-center gap-1.5 text-sm text-light-muted dark:text-dark-muted mb-2">
+        <nav className="flex items-center gap-1.5 text-sm text-foreground-muted mb-2">
           <Link
             to="/"
-            className="hover:text-light-text dark:hover:text-dark-text transition-colors"
+            className="hover:text-foreground transition-colors"
           >
             <Home className="w-4 h-4" />
           </Link>
@@ -39,12 +39,12 @@ export default function Header({
               {crumb.path ? (
                 <Link
                   to={crumb.path}
-                  className="hover:text-light-text dark:hover:text-dark-text transition-colors"
+                  className="hover:text-foreground transition-colors"
                 >
                   {crumb.label}
                 </Link>
               ) : (
-                <span className="text-light-text dark:text-dark-text font-medium">
+                <span className="text-foreground font-medium">
                   {crumb.label}
                 </span>
               )}
@@ -54,11 +54,11 @@ export default function Header({
       )}
       <div className="flex items-center justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-light-text dark:text-dark-text">
+          <h1 className="text-2xl font-bold text-foreground">
             {title}
           </h1>
           {subtitle && (
-            <p className="text-sm text-light-muted dark:text-dark-muted mt-1">
+            <p className="text-sm text-foreground-muted mt-1">
               {subtitle}
             </p>
           )}

@@ -83,7 +83,7 @@ function SectionTitle({ children, id }: { children: React.ReactNode; id: string 
   return (
     <div ref={ref} id={id} className="pt-16 pb-6 scroll-mt-20">
       <motion.h2
-        className="text-3xl font-bold text-light-text dark:text-dark-text"
+        className="text-3xl font-bold text-foreground"
         initial={{ opacity: 0, x: -20 }}
         animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -20 }}
         transition={{ duration: 0.5 }}
@@ -123,7 +123,7 @@ function ColorCard({
   return (
     <motion.div
       className={cn(
-        'rounded-xl border border-light-border dark:border-dark-border overflow-hidden bg-light-surface dark:bg-dark-surface',
+        'rounded-xl border border-border-default overflow-hidden bg-surface-card',
         className
       )}
       whileHover={{ y: -3 }}
@@ -138,10 +138,10 @@ function ColorCard({
         </button>
       </div>
       <div className="p-3">
-        <p className="text-sm font-semibold text-light-text dark:text-dark-text">{name}</p>
-        <p className="text-xs font-mono text-light-muted dark:text-dark-muted">{hex}</p>
-        <p className="text-xs font-mono text-light-muted dark:text-dark-muted">{rgb}</p>
-        <p className="text-xs text-light-muted dark:text-dark-muted mt-1">{usage}</p>
+        <p className="text-sm font-semibold text-foreground">{name}</p>
+        <p className="text-xs font-mono text-foreground-muted">{hex}</p>
+        <p className="text-xs font-mono text-foreground-muted">{rgb}</p>
+        <p className="text-xs text-foreground-muted mt-1">{usage}</p>
       </div>
     </motion.div>
   );
@@ -176,7 +176,7 @@ export default function Brandbook() {
   return (
     <div className="flex gap-8">
       <nav className="hidden lg:block w-48 shrink-0 sticky top-6 self-start">
-        <p className="text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted mb-3">
+        <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">
           On this page
         </p>
         <div className="space-y-1">
@@ -188,7 +188,7 @@ export default function Brandbook() {
                 'block px-3 py-1.5 text-sm rounded-lg transition-all',
                 activeSection === id
                   ? 'text-brand-primary bg-brand-primary/10 font-medium'
-                  : 'text-light-muted dark:text-dark-muted hover:text-light-text dark:hover:text-dark-text'
+                  : 'text-foreground-muted hover:text-foreground'
               )}
               onClick={(e) => {
                 e.preventDefault();
@@ -261,7 +261,7 @@ export default function Brandbook() {
 
         <div className="space-y-8">
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-3">Brand Colors</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Brand Colors</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <ColorCard name="Primary (Indigo)" hex="#6366F1" rgb="rgb(99, 102, 241)" usage="Main actions, links, active states" />
               <ColorCard name="Secondary (Violet)" hex="#8B5CF6" rgb="rgb(139, 92, 246)" usage="Gradient midpoints, secondary accents" />
@@ -270,15 +270,15 @@ export default function Brandbook() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-3">Brand Gradient</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Brand Gradient</h3>
             <div className="h-16 rounded-xl gradient-bg" />
-            <p className="text-xs text-light-muted dark:text-dark-muted mt-2 font-mono">
+            <p className="text-xs text-foreground-muted mt-2 font-mono">
               from-[#6366F1] via-[#8B5CF6] to-[#06B6D4]
             </p>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-3">Dark Mode Palette</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Dark Mode Palette</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <ColorCard name="Background" hex="#0A0A0F" rgb="rgb(10, 10, 15)" usage="Page background" />
               <ColorCard name="Surface" hex="#12121A" rgb="rgb(18, 18, 26)" usage="Cards, panels" />
@@ -290,7 +290,7 @@ export default function Brandbook() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-3">Light Mode Palette</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Light Mode Palette</h3>
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
               <ColorCard name="Background" hex="#FAFAFA" rgb="rgb(250, 250, 250)" usage="Page background" />
               <ColorCard name="Surface" hex="#FFFFFF" rgb="rgb(255, 255, 255)" usage="Cards, panels" />
@@ -302,7 +302,7 @@ export default function Brandbook() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-3">Semantic Colors</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Semantic Colors</h3>
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               <ColorCard name="Success" hex="#10B981" rgb="rgb(16, 185, 129)" usage="Positive indicators" />
               <ColorCard name="Warning" hex="#F59E0B" rgb="rgb(245, 158, 11)" usage="Caution states" />
@@ -312,7 +312,7 @@ export default function Brandbook() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-3">Gray Scale</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-3">Gray Scale</h3>
             <div className="flex rounded-xl overflow-hidden h-12">
               {['#FAFAFA', '#F3F4F6', '#E5E7EB', '#D1D5DB', '#9CA3AF', '#6B7280', '#4B5563', '#374151', '#1F2937', '#111827', '#0A0A0F'].map((c) => (
                 <div key={c} className="flex-1" style={{ backgroundColor: c }} title={c} />
@@ -326,71 +326,71 @@ export default function Brandbook() {
 
         <div className="space-y-8">
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Font Families</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Font Families</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card variant="default" padding="md">
-                <p className="text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted mb-3">Primary Font</p>
-                <p className="text-4xl font-sans text-light-text dark:text-dark-text mb-2">Inter</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">Primary Font</p>
+                <p className="text-4xl font-sans text-foreground mb-2">Inter</p>
                 <div className="space-y-2 mt-4">
-                  <p className="font-light text-light-text dark:text-dark-text">Light (300) - The quick brown fox jumps over the lazy dog</p>
-                  <p className="font-normal text-light-text dark:text-dark-text">Regular (400) - The quick brown fox jumps over the lazy dog</p>
-                  <p className="font-medium text-light-text dark:text-dark-text">Medium (500) - The quick brown fox jumps over the lazy dog</p>
-                  <p className="font-semibold text-light-text dark:text-dark-text">Semibold (600) - The quick brown fox jumps over the lazy dog</p>
-                  <p className="font-bold text-light-text dark:text-dark-text">Bold (700) - The quick brown fox jumps over the lazy dog</p>
-                  <p className="font-extrabold text-light-text dark:text-dark-text">Extrabold (800) - The quick brown fox jumps over the lazy dog</p>
+                  <p className="font-light text-foreground">Light (300) - The quick brown fox jumps over the lazy dog</p>
+                  <p className="font-normal text-foreground">Regular (400) - The quick brown fox jumps over the lazy dog</p>
+                  <p className="font-medium text-foreground">Medium (500) - The quick brown fox jumps over the lazy dog</p>
+                  <p className="font-semibold text-foreground">Semibold (600) - The quick brown fox jumps over the lazy dog</p>
+                  <p className="font-bold text-foreground">Bold (700) - The quick brown fox jumps over the lazy dog</p>
+                  <p className="font-extrabold text-foreground">Extrabold (800) - The quick brown fox jumps over the lazy dog</p>
                 </div>
               </Card>
               <Card variant="default" padding="md">
-                <p className="text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted mb-3">Mono Font</p>
-                <p className="text-4xl font-mono text-light-text dark:text-dark-text mb-2">JetBrains Mono</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">Mono Font</p>
+                <p className="text-4xl font-mono text-foreground mb-2">JetBrains Mono</p>
                 <div className="space-y-2 mt-4 font-mono">
-                  <p className="font-normal text-light-text dark:text-dark-text">Regular (400) - const data = await fetch(url)</p>
-                  <p className="font-medium text-light-text dark:text-dark-text">Medium (500) - const data = await fetch(url)</p>
-                  <p className="font-semibold text-light-text dark:text-dark-text">Semibold (600) - const data = await fetch(url)</p>
+                  <p className="font-normal text-foreground">Regular (400) - const data = await fetch(url)</p>
+                  <p className="font-medium text-foreground">Medium (500) - const data = await fetch(url)</p>
+                  <p className="font-semibold text-foreground">Semibold (600) - const data = await fetch(url)</p>
                 </div>
               </Card>
             </div>
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Type Scale</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Type Scale</h3>
             <Card variant="default" padding="md">
               <div className="space-y-6">
-                <div className="flex items-baseline gap-4 border-b border-light-border dark:border-dark-border pb-4">
-                  <span className="text-xs font-mono text-light-muted dark:text-dark-muted w-24 shrink-0">h1 / 3rem</span>
-                  <h1 className="text-5xl font-bold text-light-text dark:text-dark-text">Heading One</h1>
+                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
+                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">h1 / 3rem</span>
+                  <h1 className="text-5xl font-bold text-foreground">Heading One</h1>
                 </div>
-                <div className="flex items-baseline gap-4 border-b border-light-border dark:border-dark-border pb-4">
-                  <span className="text-xs font-mono text-light-muted dark:text-dark-muted w-24 shrink-0">h2 / 2.25rem</span>
-                  <h2 className="text-4xl font-bold text-light-text dark:text-dark-text">Heading Two</h2>
+                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
+                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">h2 / 2.25rem</span>
+                  <h2 className="text-4xl font-bold text-foreground">Heading Two</h2>
                 </div>
-                <div className="flex items-baseline gap-4 border-b border-light-border dark:border-dark-border pb-4">
-                  <span className="text-xs font-mono text-light-muted dark:text-dark-muted w-24 shrink-0">h3 / 1.5rem</span>
-                  <h3 className="text-2xl font-semibold text-light-text dark:text-dark-text">Heading Three</h3>
+                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
+                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">h3 / 1.5rem</span>
+                  <h3 className="text-2xl font-semibold text-foreground">Heading Three</h3>
                 </div>
-                <div className="flex items-baseline gap-4 border-b border-light-border dark:border-dark-border pb-4">
-                  <span className="text-xs font-mono text-light-muted dark:text-dark-muted w-24 shrink-0">h4 / 1.25rem</span>
-                  <h4 className="text-xl font-semibold text-light-text dark:text-dark-text">Heading Four</h4>
+                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
+                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">h4 / 1.25rem</span>
+                  <h4 className="text-xl font-semibold text-foreground">Heading Four</h4>
                 </div>
-                <div className="flex items-baseline gap-4 border-b border-light-border dark:border-dark-border pb-4">
-                  <span className="text-xs font-mono text-light-muted dark:text-dark-muted w-24 shrink-0">h5 / 1.125rem</span>
-                  <h5 className="text-lg font-medium text-light-text dark:text-dark-text">Heading Five</h5>
+                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
+                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">h5 / 1.125rem</span>
+                  <h5 className="text-lg font-medium text-foreground">Heading Five</h5>
                 </div>
-                <div className="flex items-baseline gap-4 border-b border-light-border dark:border-dark-border pb-4">
-                  <span className="text-xs font-mono text-light-muted dark:text-dark-muted w-24 shrink-0">h6 / 1rem</span>
-                  <h6 className="text-base font-medium text-light-text dark:text-dark-text">Heading Six</h6>
+                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
+                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">h6 / 1rem</span>
+                  <h6 className="text-base font-medium text-foreground">Heading Six</h6>
                 </div>
-                <div className="flex items-baseline gap-4 border-b border-light-border dark:border-dark-border pb-4">
-                  <span className="text-xs font-mono text-light-muted dark:text-dark-muted w-24 shrink-0">body / 0.875rem</span>
-                  <p className="text-sm text-light-text dark:text-dark-text">Body text used for paragraphs and descriptions across the application.</p>
+                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
+                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">body / 0.875rem</span>
+                  <p className="text-sm text-foreground">Body text used for paragraphs and descriptions across the application.</p>
                 </div>
-                <div className="flex items-baseline gap-4 border-b border-light-border dark:border-dark-border pb-4">
-                  <span className="text-xs font-mono text-light-muted dark:text-dark-muted w-24 shrink-0">caption / 0.75rem</span>
-                  <p className="text-xs text-light-muted dark:text-dark-muted">Caption text used for labels, metadata, and small descriptions.</p>
+                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
+                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">caption / 0.75rem</span>
+                  <p className="text-xs text-foreground-muted">Caption text used for labels, metadata, and small descriptions.</p>
                 </div>
                 <div className="flex items-baseline gap-4">
-                  <span className="text-xs font-mono text-light-muted dark:text-dark-muted w-24 shrink-0">overline / 0.625rem</span>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-light-muted dark:text-dark-muted">Overline Text</p>
+                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">overline / 0.625rem</span>
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">Overline Text</p>
                 </div>
               </div>
             </Card>
@@ -403,11 +403,11 @@ export default function Brandbook() {
         <div className="space-y-10">
           {/* Buttons */}
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Buttons</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Buttons</h3>
             <Card variant="default" padding="md">
               <div className="space-y-6">
                 <div>
-                  <p className="text-xs text-light-muted dark:text-dark-muted mb-3">Variants</p>
+                  <p className="text-xs text-foreground-muted mb-3">Variants</p>
                   <div className="flex flex-wrap gap-3">
                     <Button variant="primary">Primary</Button>
                     <Button variant="secondary">Secondary</Button>
@@ -416,7 +416,7 @@ export default function Brandbook() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-light-muted dark:text-dark-muted mb-3">Sizes</p>
+                  <p className="text-xs text-foreground-muted mb-3">Sizes</p>
                   <div className="flex flex-wrap items-center gap-3">
                     <Button variant="primary" size="sm">Small</Button>
                     <Button variant="primary" size="md">Medium</Button>
@@ -424,7 +424,7 @@ export default function Brandbook() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-light-muted dark:text-dark-muted mb-3">With Icons</p>
+                  <p className="text-xs text-foreground-muted mb-3">With Icons</p>
                   <div className="flex flex-wrap gap-3">
                     <Button variant="primary" icon={<Plus className="w-4 h-4" />}>Add New</Button>
                     <Button variant="secondary" icon={<Download className="w-4 h-4" />}>Export</Button>
@@ -433,7 +433,7 @@ export default function Brandbook() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-light-muted dark:text-dark-muted mb-3">Loading & Disabled</p>
+                  <p className="text-xs text-foreground-muted mb-3">Loading & Disabled</p>
                   <div className="flex flex-wrap gap-3">
                     <Button variant="primary" loading>Loading</Button>
                     <Button variant="secondary" loading>Loading</Button>
@@ -447,11 +447,11 @@ export default function Brandbook() {
 
           {/* Badges */}
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Badges</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Badges</h3>
             <Card variant="default" padding="md">
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs text-light-muted dark:text-dark-muted mb-3">Variants (md)</p>
+                  <p className="text-xs text-foreground-muted mb-3">Variants (md)</p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="default">Default</Badge>
                     <Badge variant="critical">Critical</Badge>
@@ -462,7 +462,7 @@ export default function Brandbook() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-light-muted dark:text-dark-muted mb-3">Small</p>
+                  <p className="text-xs text-foreground-muted mb-3">Small</p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="default" size="sm">Default</Badge>
                     <Badge variant="critical" size="sm">Critical</Badge>
@@ -471,7 +471,7 @@ export default function Brandbook() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-light-muted dark:text-dark-muted mb-3">With Icons & Dismiss</p>
+                  <p className="text-xs text-foreground-muted mb-3">With Icons & Dismiss</p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="critical" icon={<AlertCircle className="w-3 h-3" />}>3 Critical</Badge>
                     <Badge variant="warning" icon={<AlertTriangle className="w-3 h-3" />}>12 Warnings</Badge>
@@ -485,26 +485,26 @@ export default function Brandbook() {
 
           {/* Cards */}
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Cards</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Cards</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card variant="default" padding="md" hoverable>
-                <h4 className="font-semibold text-light-text dark:text-dark-text mb-1">Default Card</h4>
-                <p className="text-sm text-light-muted dark:text-dark-muted">Standard surface with border. Hoverable with lift effect.</p>
+                <h4 className="font-semibold text-foreground mb-1">Default Card</h4>
+                <p className="text-sm text-foreground-muted">Standard surface with border. Hoverable with lift effect.</p>
               </Card>
               <Card variant="elevated" padding="md" hoverable>
-                <h4 className="font-semibold text-light-text dark:text-dark-text mb-1">Elevated Card</h4>
-                <p className="text-sm text-light-muted dark:text-dark-muted">Elevated with shadow for emphasis.</p>
+                <h4 className="font-semibold text-foreground mb-1">Elevated Card</h4>
+                <p className="text-sm text-foreground-muted">Elevated with shadow for emphasis.</p>
               </Card>
               <Card variant="outlined" padding="md" hoverable>
-                <h4 className="font-semibold text-light-text dark:text-dark-text mb-1">Outlined Card</h4>
-                <p className="text-sm text-light-muted dark:text-dark-muted">Transparent background with border.</p>
+                <h4 className="font-semibold text-foreground mb-1">Outlined Card</h4>
+                <p className="text-sm text-foreground-muted">Transparent background with border.</p>
               </Card>
             </div>
           </div>
 
           {/* Inputs */}
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Inputs</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Inputs</h3>
             <Card variant="default" padding="md">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input label="Default Input" placeholder="Enter something..." />
@@ -517,7 +517,7 @@ export default function Brandbook() {
 
           {/* Score Gauges */}
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Score Gauges</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Score Gauges</h3>
             <Card variant="default" padding="md">
               <div className="flex flex-wrap gap-8 justify-center">
                 <ScoreGauge score={92} size="lg" label="Excellent" />
@@ -531,7 +531,7 @@ export default function Brandbook() {
 
           {/* Tabs */}
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Tabs</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Tabs</h3>
             <Card variant="default" padding="md">
               <Tabs
                 tabs={[
@@ -542,15 +542,15 @@ export default function Brandbook() {
                 activeTab={exampleTab}
                 onChange={setExampleTab}
               />
-              <div className="mt-4 p-4 rounded-lg bg-light-hover dark:bg-dark-hover text-sm text-light-muted dark:text-dark-muted">
-                Content for tab: <span className="font-semibold text-light-text dark:text-dark-text">{exampleTab}</span>
+              <div className="mt-4 p-4 rounded-lg bg-surface-hover bg-surface-hover text-sm text-foreground-muted">
+                Content for tab: <span className="font-semibold text-foreground">{exampleTab}</span>
               </div>
             </Card>
           </div>
 
           {/* Modal */}
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Modal</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Modal</h3>
             <Card variant="default" padding="md">
               <Button variant="primary" onClick={() => setExampleModalOpen(true)}>
                 Open Example Modal
@@ -560,7 +560,7 @@ export default function Brandbook() {
                 onClose={() => setExampleModalOpen(false)}
                 title="Example Modal"
               >
-                <p className="text-sm text-light-muted dark:text-dark-muted mb-4">
+                <p className="text-sm text-foreground-muted mb-4">
                   This is an example modal with backdrop blur and smooth enter/exit animations.
                 </p>
                 <div className="flex justify-end gap-3">
@@ -577,7 +577,7 @@ export default function Brandbook() {
 
           {/* Tooltips */}
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Tooltips</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Tooltips</h3>
             <Card variant="default" padding="md">
               <div className="flex flex-wrap gap-4">
                 <Tooltip content="Top tooltip" position="top"><Button variant="secondary">Top</Button></Tooltip>
@@ -590,10 +590,10 @@ export default function Brandbook() {
 
           {/* Skeletons */}
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Skeletons</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Skeletons</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <p className="text-xs text-light-muted dark:text-dark-muted mb-2">Lines</p>
+                <p className="text-xs text-foreground-muted mb-2">Lines</p>
                 <SkeletonLine />
                 <SkeletonLine className="w-3/4" />
                 <SkeletonLine className="w-1/2" />
@@ -605,7 +605,7 @@ export default function Brandbook() {
 
           {/* Empty State */}
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Empty State</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Empty State</h3>
             <Card variant="outlined" padding="none">
               <EmptyState
                 icon={<FileText className="w-8 h-8" />}
@@ -621,7 +621,7 @@ export default function Brandbook() {
         <SectionTitle id="icons">Icons</SectionTitle>
 
         <Card variant="default" padding="md">
-          <p className="text-xs text-light-muted dark:text-dark-muted mb-4">
+          <p className="text-xs text-foreground-muted mb-4">
             Powered by Lucide React. All icons used in the application:
           </p>
           <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
@@ -678,11 +678,11 @@ export default function Brandbook() {
             ].map(({ icon: Icon, name }) => (
               <Tooltip key={name} content={name}>
                 <motion.div
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg hover:bg-light-hover dark:hover:bg-dark-hover transition-colors cursor-default"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg hover:bg-surface-hover transition-colors cursor-default"
                   whileHover={{ scale: 1.05 }}
                 >
-                  <Icon className="w-5 h-5 text-light-text dark:text-dark-text" />
-                  <span className="text-[9px] text-light-muted dark:text-dark-muted text-center truncate w-full">
+                  <Icon className="w-5 h-5 text-foreground" />
+                  <span className="text-[9px] text-foreground-muted text-center truncate w-full">
                     {name}
                   </span>
                 </motion.div>
@@ -696,7 +696,7 @@ export default function Brandbook() {
 
         <div className="space-y-8">
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Spacing Scale</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Spacing Scale</h3>
             <Card variant="default" padding="md">
               <div className="space-y-3">
                 {[
@@ -712,7 +712,7 @@ export default function Brandbook() {
                   { px: 64, label: '64px / 4rem (16)' },
                 ].map(({ px, label }) => (
                   <div key={px} className="flex items-center gap-4">
-                    <span className="text-xs font-mono text-light-muted dark:text-dark-muted w-40 shrink-0">{label}</span>
+                    <span className="text-xs font-mono text-foreground-muted w-40 shrink-0">{label}</span>
                     <div className="h-3 rounded-sm gradient-bg" style={{ width: `${px}px` }} />
                   </div>
                 ))}
@@ -721,7 +721,7 @@ export default function Brandbook() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Border Radius</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Border Radius</h3>
             <Card variant="default" padding="md">
               <div className="flex flex-wrap gap-4">
                 {[
@@ -737,7 +737,7 @@ export default function Brandbook() {
                       className="w-16 h-16 gradient-bg"
                       style={{ borderRadius: radius }}
                     />
-                    <span className="text-[10px] font-mono text-light-muted dark:text-dark-muted">
+                    <span className="text-[10px] font-mono text-foreground-muted">
                       {label}
                     </span>
                   </div>
@@ -747,7 +747,7 @@ export default function Brandbook() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Shadows</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Shadows</h3>
             <Card variant="default" padding="md">
               <div className="flex flex-wrap gap-6">
                 {[
@@ -760,10 +760,10 @@ export default function Brandbook() {
                 ].map(({ shadow, label }) => (
                   <div key={label} className="flex flex-col items-center gap-2">
                     <div
-                      className="w-20 h-20 rounded-xl bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border"
+                      className="w-20 h-20 rounded-xl bg-surface-card border border-border-default"
                       style={{ boxShadow: shadow }}
                     />
-                    <span className="text-[10px] font-mono text-light-muted dark:text-dark-muted">
+                    <span className="text-[10px] font-mono text-foreground-muted">
                       {label}
                     </span>
                   </div>
@@ -840,7 +840,7 @@ export default function Brandbook() {
             <AnimationDemo title="Loading Spinner" animationKey="spinner">
               {() => (
                 <motion.div
-                  className="w-12 h-12 rounded-full border-3 border-light-border dark:border-dark-border border-t-brand-primary"
+                  className="w-12 h-12 rounded-full border-3 border-border-default border-t-brand-primary"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                   style={{ borderWidth: 3 }}
@@ -863,12 +863,12 @@ export default function Brandbook() {
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Stagger Children</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Stagger Children</h3>
             <StaggerDemo />
           </div>
 
           <div>
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">Page Transition</h3>
+            <h3 className="text-sm font-semibold text-foreground mb-4">Page Transition</h3>
             <PageTransitionDemo />
           </div>
         </div>
@@ -877,7 +877,7 @@ export default function Brandbook() {
         <SectionTitle id="darklight">Dark / Light Mode</SectionTitle>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="rounded-xl overflow-hidden border border-light-border dark:border-dark-border">
+          <div className="rounded-xl overflow-hidden border border-border-default">
             <div className="px-4 py-2 bg-gray-800 text-white text-xs font-semibold">Dark Mode</div>
             <div className="bg-[#0A0A0F] p-6 space-y-3">
               <div className="bg-[#12121A] border border-[#1E1E2E] rounded-xl p-4">
@@ -895,7 +895,7 @@ export default function Brandbook() {
             </div>
           </div>
 
-          <div className="rounded-xl overflow-hidden border border-light-border dark:border-dark-border">
+          <div className="rounded-xl overflow-hidden border border-border-default">
             <div className="px-4 py-2 bg-gray-100 text-gray-800 text-xs font-semibold">Light Mode</div>
             <div className="bg-[#FAFAFA] p-6 space-y-3">
               <div className="bg-white border border-[#E5E7EB] rounded-xl p-4">
@@ -919,8 +919,8 @@ export default function Brandbook() {
 
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="rounded-xl overflow-hidden border border-light-border dark:border-dark-border">
-              <div className="px-4 py-2 text-xs font-semibold text-light-muted dark:text-dark-muted bg-light-hover dark:bg-dark-hover">
+            <div className="rounded-xl overflow-hidden border border-border-default">
+              <div className="px-4 py-2 text-xs font-semibold text-foreground-muted bg-surface-hover bg-surface-hover">
                 On Dark Background
               </div>
               <div className="bg-[#0A0A0F] p-8 flex flex-col items-center gap-6">
@@ -929,8 +929,8 @@ export default function Brandbook() {
                 <LogoDisplay size="sm" bgDark />
               </div>
             </div>
-            <div className="rounded-xl overflow-hidden border border-light-border dark:border-dark-border">
-              <div className="px-4 py-2 text-xs font-semibold text-light-muted dark:text-dark-muted bg-light-hover dark:bg-dark-hover">
+            <div className="rounded-xl overflow-hidden border border-border-default">
+              <div className="px-4 py-2 text-xs font-semibold text-foreground-muted bg-surface-hover bg-surface-hover">
                 On Light Background
               </div>
               <div className="bg-white p-8 flex flex-col items-center gap-6">
@@ -942,8 +942,8 @@ export default function Brandbook() {
           </div>
 
           <Card variant="default" padding="md">
-            <h4 className="text-sm font-semibold text-light-text dark:text-dark-text mb-3">Logo Construction</h4>
-            <p className="text-sm text-light-muted dark:text-dark-muted">
+            <h4 className="text-sm font-semibold text-foreground mb-3">Logo Construction</h4>
+            <p className="text-sm text-foreground-muted">
               The UniAudit logo is text-based. "Uni" uses Inter Regular (400) weight, and "Audit" uses Inter Bold (700).
               A small gradient accent dot appears after the text. The gradient icon uses a rounded square with the GraduationCap icon.
             </p>
@@ -1001,7 +1001,7 @@ function AnimationDemo({
   return (
     <Card variant="default" padding="md">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted">
+        <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
           {title}
         </p>
         {animationKey !== 'hover' && animationKey !== 'spinner' && animationKey !== 'gradient-text' && (
@@ -1032,7 +1032,7 @@ function StaggerDemo() {
   return (
     <Card variant="default" padding="md">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted">
+        <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
           Stagger Children
         </p>
         <button onClick={replay} className="text-xs text-brand-primary hover:underline">
@@ -1054,7 +1054,7 @@ function StaggerDemo() {
             {items.map((item) => (
               <motion.div
                 key={item}
-                className="px-4 py-2 rounded-lg border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface text-sm text-light-text dark:text-dark-text"
+                className="px-4 py-2 rounded-lg border border-border-default bg-surface-card text-sm text-foreground"
                 variants={{
                   hidden: { opacity: 0, y: 20, scale: 0.8 },
                   visible: { opacity: 1, y: 0, scale: 1 },
@@ -1086,14 +1086,14 @@ function PageTransitionDemo() {
               'px-3 py-1 text-xs font-medium rounded-full transition-all',
               page === i
                 ? 'bg-brand-primary/10 text-brand-primary'
-                : 'text-light-muted dark:text-dark-muted hover:bg-light-hover dark:hover:bg-dark-hover'
+                : 'text-foreground-muted hover:bg-surface-hover'
             )}
           >
             {p}
           </button>
         ))}
       </div>
-      <div className="h-32 rounded-lg border border-light-border dark:border-dark-border overflow-hidden relative">
+      <div className="h-32 rounded-lg border border-border-default overflow-hidden relative">
         <AnimatePresence mode="wait">
           <motion.div
             key={page}
@@ -1104,15 +1104,15 @@ function PageTransitionDemo() {
             transition={{ duration: 0.3 }}
           >
             <div className="space-y-2">
-              <div className="h-4 w-1/3 rounded bg-light-border dark:bg-dark-border" />
-              <div className="h-3 w-2/3 rounded bg-light-border dark:bg-dark-border" />
+              <div className="h-4 w-1/3 rounded bg-border-subtle" />
+              <div className="h-3 w-2/3 rounded bg-border-subtle" />
               <div className="flex gap-2 mt-4">
                 {[1, 2, 3].map((i) => (
-                  <div key={i} className="h-12 flex-1 rounded-lg bg-light-border dark:bg-dark-border" />
+                  <div key={i} className="h-12 flex-1 rounded-lg bg-border-subtle" />
                 ))}
               </div>
             </div>
-            <p className="text-xs text-light-muted dark:text-dark-muted mt-3">
+            <p className="text-xs text-foreground-muted mt-3">
               {pages[page]} page content
             </p>
           </motion.div>

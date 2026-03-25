@@ -44,7 +44,7 @@ function TreeNodeComponent({ node, depth, filters }: TreeNodeComponentProps) {
     <div className="select-none">
       <div
         className={cn(
-          'flex items-center gap-2 py-1 px-2 rounded-md cursor-pointer hover:bg-light-hover dark:hover:bg-dark-hover transition-colors group',
+          'flex items-center gap-2 py-1 px-2 rounded-md cursor-pointer hover:bg-surface-hover transition-colors group',
           'border-l-2',
         )}
         style={{ paddingLeft: `${depth * 20 + 8}px`, borderLeftColor: getCategoryColor(node.category) }}
@@ -55,7 +55,7 @@ function TreeNodeComponent({ node, depth, filters }: TreeNodeComponentProps) {
             animate={{ rotate: expanded ? 90 : 0 }}
             transition={{ duration: 0.15 }}
           >
-            <ChevronRight className="w-4 h-4 text-light-muted dark:text-dark-muted" />
+            <ChevronRight className="w-4 h-4 text-foreground-muted" />
           </motion.div>
         ) : (
           <span className="w-4" />
@@ -73,7 +73,7 @@ function TreeNodeComponent({ node, depth, filters }: TreeNodeComponentProps) {
           />
         )}
 
-        <span className="text-sm text-light-text dark:text-dark-text truncate flex-1">
+        <span className="text-sm text-foreground truncate flex-1">
           {truncate(node.ai_title || 'Untitled', 50)}
         </span>
 
@@ -99,7 +99,7 @@ function TreeNodeComponent({ node, depth, filters }: TreeNodeComponentProps) {
         )}
 
         {hasChildren && (
-          <span className="text-[10px] text-light-muted dark:text-dark-muted shrink-0">
+          <span className="text-[10px] text-foreground-muted shrink-0">
             {filteredChildren.length}
           </span>
         )}
@@ -156,7 +156,7 @@ export default function SiteTree({ tree, className }: SiteTreeProps) {
             'flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
             showFilters
               ? 'bg-brand-primary/10 text-brand-primary'
-              : 'text-light-muted dark:text-dark-muted hover:bg-light-hover dark:hover:bg-dark-hover'
+              : 'text-foreground-muted hover:bg-surface-hover'
           )}
         >
           <Filter className="w-4 h-4" />
@@ -170,20 +170,20 @@ export default function SiteTree({ tree, className }: SiteTreeProps) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="flex flex-wrap gap-4 p-4 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface"
+            className="flex flex-wrap gap-4 p-4 rounded-xl border border-border-default bg-surface-card"
           >
-            <label className="flex items-center gap-2 text-sm text-light-text dark:text-dark-text">
+            <label className="flex items-center gap-2 text-sm text-foreground">
               <input
                 type="checkbox"
                 checked={filters.hideFooter}
                 onChange={(e) =>
                   setFilters((f) => ({ ...f, hideFooter: e.target.checked }))
                 }
-                className="rounded border-light-border dark:border-dark-border"
+                className="rounded border-border-default"
               />
               Hide footer links
             </label>
-            <label className="flex items-center gap-2 text-sm text-light-text dark:text-dark-text">
+            <label className="flex items-center gap-2 text-sm text-foreground">
               <input
                 type="checkbox"
                 checked={filters.hideHeaderBelowDepth1}
@@ -193,7 +193,7 @@ export default function SiteTree({ tree, className }: SiteTreeProps) {
                     hideHeaderBelowDepth1: e.target.checked,
                   }))
                 }
-                className="rounded border-light-border dark:border-dark-border"
+                className="rounded border-border-default"
               />
               Hide header links below depth 1
             </label>
@@ -203,7 +203,7 @@ export default function SiteTree({ tree, className }: SiteTreeProps) {
                 onChange={(e) =>
                   setFilters((f) => ({ ...f, category: e.target.value }))
                 }
-                className="px-3 py-1.5 text-sm rounded-lg border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text"
+                className="px-3 py-1.5 text-sm rounded-lg border border-border-default bg-surface-card text-foreground"
               >
                 <option value="">All Categories</option>
                 {categories().map((cat) => (
@@ -225,7 +225,7 @@ export default function SiteTree({ tree, className }: SiteTreeProps) {
         )}
       </AnimatePresence>
 
-      <div className="border border-light-border dark:border-dark-border rounded-xl p-2 overflow-auto max-h-[600px] scrollbar-hidden">
+      <div className="border border-border-default rounded-xl p-2 overflow-auto max-h-[600px] scrollbar-hidden">
         <TreeNodeComponent node={tree} depth={0} filters={filters} />
       </div>
     </div>

@@ -47,7 +47,7 @@ export default function IssuesList({ issues, className }: IssuesListProps) {
               'px-3 py-1 text-xs font-medium rounded-full transition-all',
               filter === f
                 ? 'bg-brand-primary/10 text-brand-primary'
-                : 'text-light-muted dark:text-dark-muted hover:bg-light-hover dark:hover:bg-dark-hover'
+                : 'text-foreground-muted hover:bg-surface-hover'
             )}
           >
             {f.charAt(0).toUpperCase() + f.slice(1)} ({counts[f]})
@@ -68,11 +68,11 @@ export default function IssuesList({ issues, className }: IssuesListProps) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="border border-light-border dark:border-dark-border rounded-lg overflow-hidden"
+                className="border border-border-default rounded-lg overflow-hidden"
               >
                 <button
                   onClick={() => setExpandedIndex(isExpanded ? null : index)}
-                  className="flex items-center gap-3 w-full p-3 hover:bg-light-hover dark:hover:bg-dark-hover transition-colors text-left"
+                  className="flex items-center gap-3 w-full p-3 hover:bg-surface-hover transition-colors text-left"
                 >
                   <Icon
                     className={cn(
@@ -82,7 +82,7 @@ export default function IssuesList({ issues, className }: IssuesListProps) {
                       issue.type === 'suggestion' && 'text-blue-500'
                     )}
                   />
-                  <span className="flex-1 text-sm text-light-text dark:text-dark-text">
+                  <span className="flex-1 text-sm text-foreground">
                     {issue.description}
                   </span>
                   <Badge variant={issueVariants[issue.type]} size="sm">
@@ -92,7 +92,7 @@ export default function IssuesList({ issues, className }: IssuesListProps) {
                     animate={{ rotate: isExpanded ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <ChevronDown className="w-4 h-4 text-light-muted dark:text-dark-muted" />
+                    <ChevronDown className="w-4 h-4 text-foreground-muted" />
                   </motion.div>
                 </button>
                 <AnimatePresence>
@@ -102,9 +102,9 @@ export default function IssuesList({ issues, className }: IssuesListProps) {
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="border-t border-light-border dark:border-dark-border"
+                      className="border-t border-border-default"
                     >
-                      <div className="p-3 text-sm text-light-muted dark:text-dark-muted">
+                      <div className="p-3 text-sm text-foreground-muted">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium">Category:</span>
                           <Badge variant="default" size="sm">
@@ -127,7 +127,7 @@ export default function IssuesList({ issues, className }: IssuesListProps) {
       </div>
 
       {filteredIssues.length === 0 && (
-        <p className="text-sm text-light-muted dark:text-dark-muted text-center py-6">
+        <p className="text-sm text-foreground-muted text-center py-6">
           No issues found for this filter.
         </p>
       )}

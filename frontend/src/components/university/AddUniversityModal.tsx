@@ -96,20 +96,20 @@ export default function AddUniversityModal({
           error={errors.domains}
           icon={<Globe className="w-4 h-4" />}
         />
-        <p className="text-xs text-light-muted dark:text-dark-muted -mt-2">
+        <p className="text-xs text-foreground-muted -mt-2">
           Separate multiple domains with commas
         </p>
 
         <div className="flex flex-col gap-1.5">
-          <label className="text-sm font-medium text-light-text dark:text-dark-text">
+          <label className="text-sm font-medium text-foreground">
             Country
           </label>
           <div className="relative">
-            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-light-muted dark:text-dark-muted" />
+            <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-foreground-muted" />
             <select
               value={country}
               onChange={(e) => setCountry(e.target.value)}
-              className="w-full pl-10 pr-3 py-2 text-sm rounded-lg border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary"
+              className="w-full pl-10 pr-3 py-2 text-sm rounded-lg border border-border-default bg-surface-card text-foreground focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary"
             >
               {countries.map((c) => (
                 <option key={c.code} value={c.code}>

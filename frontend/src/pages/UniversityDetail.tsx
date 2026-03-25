@@ -179,7 +179,7 @@ export default function UniversityDetail() {
             exit={{ opacity: 0, y: -10 }}
             className="space-y-6"
           >
-            <div className="flex items-center gap-4 text-sm text-light-muted dark:text-dark-muted">
+            <div className="flex items-center gap-4 text-sm text-foreground-muted">
               <span>Created {formatDate(university.created_at)}</span>
               <span>Updated {formatDate(university.updated_at)}</span>
             </div>
@@ -235,7 +235,7 @@ export default function UniversityDetail() {
 
                 {summary.top_issues.length > 0 && (
                   <Card variant="default" padding="md">
-                    <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">
+                    <h3 className="text-sm font-semibold text-foreground mb-4">
                       Top Issues
                     </h3>
                     <IssuesList issues={summary.top_issues} />
@@ -244,7 +244,7 @@ export default function UniversityDetail() {
 
                 {Object.keys(summary.category_completeness).length > 0 && (
                   <Card variant="default" padding="md">
-                    <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">
+                    <h3 className="text-sm font-semibold text-foreground mb-4">
                       Category Completeness
                     </h3>
                     <div className="space-y-3">
@@ -258,10 +258,10 @@ export default function UniversityDetail() {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.04 }}
                           >
-                            <span className="text-sm text-light-text dark:text-dark-text w-32 truncate">
+                            <span className="text-sm text-foreground w-32 truncate">
                               {category}
                             </span>
-                            <div className="flex-1 h-2 rounded-full bg-light-border dark:bg-dark-border overflow-hidden">
+                            <div className="flex-1 h-2 rounded-full bg-border-subtle overflow-hidden">
                               <motion.div
                                 className="h-full rounded-full gradient-bg"
                                 initial={{ width: 0 }}
@@ -269,7 +269,7 @@ export default function UniversityDetail() {
                                 transition={{ delay: index * 0.04, duration: 0.6 }}
                               />
                             </div>
-                            <span className="text-xs font-medium text-light-muted dark:text-dark-muted w-10 text-right">
+                            <span className="text-xs font-medium text-foreground-muted w-10 text-right">
                               {Math.round(score)}%
                             </span>
                           </motion.div>
@@ -317,7 +317,7 @@ export default function UniversityDetail() {
                     page: 1,
                   }))
                 }
-                className="px-3 py-2 text-sm rounded-lg border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text"
+                className="px-3 py-2 text-sm rounded-lg border border-border-default bg-surface-card text-foreground"
               >
                 <option value="">All Categories</option>
                 <option value="admissions">Admissions</option>
@@ -340,7 +340,7 @@ export default function UniversityDetail() {
                     page: 1,
                   }));
                 }}
-                className="px-3 py-2 text-sm rounded-lg border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface text-light-text dark:text-dark-text"
+                className="px-3 py-2 text-sm rounded-lg border border-border-default bg-surface-card text-foreground"
               >
                 <option value="0-">All Depths</option>
                 <option value="0-0">Homepage</option>
@@ -368,7 +368,7 @@ export default function UniversityDetail() {
                 />
                 {pagesData.total_pages > 1 && (
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-light-muted dark:text-dark-muted">
+                    <p className="text-sm text-foreground-muted">
                       Showing {(pagesData.page - 1) * pagesData.per_page + 1} -{' '}
                       {Math.min(pagesData.page * pagesData.per_page, pagesData.total)} of{' '}
                       {pagesData.total} pages
@@ -388,7 +388,7 @@ export default function UniversityDetail() {
                       >
                         Prev
                       </Button>
-                      <span className="text-sm text-light-muted dark:text-dark-muted">
+                      <span className="text-sm text-foreground-muted">
                         {pagesData.page} / {pagesData.total_pages}
                       </span>
                       <Button

@@ -67,7 +67,7 @@ export default function ScoreGauge({
             fill="none"
             stroke="currentColor"
             strokeWidth={config.stroke}
-            className="text-light-border dark:text-dark-border"
+            className="text-border-default"
           />
           <motion.circle
             cx={center}
@@ -90,11 +90,11 @@ export default function ScoreGauge({
       {showLabel && (
         <div className="text-center">
           {label && (
-            <p className={cn('font-medium text-light-text dark:text-dark-text', config.labelSize)}>
+            <p className={cn('font-medium text-foreground', config.labelSize)}>
               {label}
             </p>
           )}
-          <p className={cn('text-light-muted dark:text-dark-muted', config.labelSize)}>
+          <p className={cn('text-foreground-muted', config.labelSize)}>
             {getScoreLabel(score)}
           </p>
         </div>

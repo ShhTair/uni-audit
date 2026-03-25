@@ -88,7 +88,7 @@ export default function PageReport() {
             href={page.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-light-border dark:border-dark-border text-light-text dark:text-dark-text hover:bg-light-hover dark:hover:bg-dark-hover transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-border-default text-foreground hover:bg-surface-hover transition-all"
           >
             <ExternalLink className="w-4 h-4" />
             Open Page
@@ -176,11 +176,11 @@ export default function PageReport() {
 
         {page.ai_summary && (
           <Card variant="default" padding="md">
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-3 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
               <Type className="w-4 h-4 text-brand-primary" />
               AI Summary
             </h3>
-            <p className="text-sm text-light-muted dark:text-dark-muted leading-relaxed">
+            <p className="text-sm text-foreground-muted leading-relaxed">
               {page.ai_summary}
             </p>
           </Card>
@@ -188,7 +188,7 @@ export default function PageReport() {
 
         {page.ai_improvements.length > 0 && (
           <Card variant="default" padding="md">
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4 flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
               <Lightbulb className="w-4 h-4 text-brand-primary" />
               AI Improvements ({page.ai_improvements.length})
             </h3>
@@ -207,7 +207,7 @@ export default function PageReport() {
 
         {page.headings.length > 0 && (
           <Card variant="default" padding="md">
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-3">
+            <h3 className="text-sm font-semibold text-foreground mb-3">
               Heading Structure
             </h3>
             <div className="space-y-1">
@@ -227,10 +227,10 @@ export default function PageReport() {
                     className={cn(
                       'text-sm',
                       heading.level === 1
-                        ? 'font-bold text-light-text dark:text-dark-text'
+                        ? 'font-bold text-foreground'
                         : heading.level === 2
-                        ? 'font-semibold text-light-text dark:text-dark-text'
-                        : 'text-light-muted dark:text-dark-muted'
+                        ? 'font-semibold text-foreground'
+                        : 'text-foreground-muted'
                     )}
                   >
                     {heading.text}
@@ -243,7 +243,7 @@ export default function PageReport() {
 
         {page.discovery_path.length > 0 && (
           <Card variant="default" padding="md">
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-3">
+            <h3 className="text-sm font-semibold text-foreground mb-3">
               Discovery Path
             </h3>
             <div className="flex items-center gap-2 flex-wrap">
@@ -255,11 +255,11 @@ export default function PageReport() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: i * 0.1 }}
                 >
-                  <span className="px-3 py-1.5 text-xs font-medium rounded-lg bg-light-hover dark:bg-dark-hover text-light-text dark:text-dark-text border border-light-border dark:border-dark-border truncate max-w-[200px]">
+                  <span className="px-3 py-1.5 text-xs font-medium rounded-lg bg-surface-hover bg-surface-hover text-foreground border border-border-default truncate max-w-[200px]">
                     {step}
                   </span>
                   {i < page.discovery_path.length - 1 && (
-                    <ArrowRight className="w-4 h-4 text-light-muted dark:text-dark-muted shrink-0" />
+                    <ArrowRight className="w-4 h-4 text-foreground-muted shrink-0" />
                   )}
                 </motion.div>
               ))}
@@ -269,23 +269,23 @@ export default function PageReport() {
 
         {Object.keys(groupedLinks).length > 0 && (
           <Card variant="default" padding="md">
-            <h3 className="text-sm font-semibold text-light-text dark:text-dark-text mb-4">
+            <h3 className="text-sm font-semibold text-foreground mb-4">
               Outgoing Links ({page.outgoing_links.length})
             </h3>
             <div className="space-y-4">
               {Object.entries(groupedLinks).map(([location, links]) => (
                 <div key={location}>
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted mb-2">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-2">
                     {location} ({links.length})
                   </h4>
                   <div className="space-y-1">
                     {links.map((link, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-2 py-1 px-2 rounded-md hover:bg-light-hover dark:hover:bg-dark-hover transition-colors"
+                        className="flex items-center gap-2 py-1 px-2 rounded-md hover:bg-surface-hover transition-colors"
                       >
-                        <Link2 className="w-3.5 h-3.5 text-light-muted dark:text-dark-muted shrink-0" />
-                        <span className="text-sm text-light-text dark:text-dark-text truncate">
+                        <Link2 className="w-3.5 h-3.5 text-foreground-muted shrink-0" />
+                        <span className="text-sm text-foreground truncate">
                           {link.text || 'No text'}
                         </span>
                         <a
@@ -323,10 +323,10 @@ function MetaCard({
   color?: string;
 }) {
   return (
-    <div className="flex items-center gap-3 p-3 rounded-xl border border-light-border dark:border-dark-border bg-light-surface dark:bg-dark-surface">
-      <span className="text-light-muted dark:text-dark-muted">{icon}</span>
+    <div className="flex items-center gap-3 p-3 rounded-xl border border-border-default bg-surface-card">
+      <span className="text-foreground-muted">{icon}</span>
       <div className="min-w-0">
-        <p className="text-[10px] text-light-muted dark:text-dark-muted">{label}</p>
+        <p className="text-[10px] text-foreground-muted">{label}</p>
         <p
           className="text-sm font-semibold truncate"
           style={color ? { color } : undefined}
@@ -334,7 +334,7 @@ function MetaCard({
           {value}
         </p>
         {sub && (
-          <p className="text-[10px] text-light-muted dark:text-dark-muted truncate">
+          <p className="text-[10px] text-foreground-muted truncate">
             {sub}
           </p>
         )}
@@ -352,7 +352,7 @@ function ImprovementGroup({
 }) {
   return (
     <div className="mb-4 last:mb-0">
-      <h4 className="text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted mb-2">
+      <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-2">
         {title} ({improvements.length})
       </h4>
       <div className="space-y-2">
@@ -361,7 +361,7 @@ function ImprovementGroup({
           return (
             <motion.div
               key={i}
-              className="flex gap-3 p-3 rounded-lg border border-light-border dark:border-dark-border"
+              className="flex gap-3 p-3 rounded-lg border border-border-default"
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
@@ -380,11 +380,11 @@ function ImprovementGroup({
                     {imp.category}
                   </Badge>
                 </div>
-                <p className="text-sm text-light-text dark:text-dark-text">
+                <p className="text-sm text-foreground">
                   {imp.description}
                 </p>
                 {imp.impact && (
-                  <p className="text-xs text-light-muted dark:text-dark-muted mt-1">
+                  <p className="text-xs text-foreground-muted mt-1">
                     Impact: {imp.impact}
                   </p>
                 )}

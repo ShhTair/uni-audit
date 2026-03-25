@@ -18,9 +18,9 @@ const variantClasses: Record<ButtonVariant, string> = {
   primary:
     'gradient-bg text-white shadow-md shadow-brand-primary/20 hover:shadow-lg hover:shadow-brand-primary/30',
   secondary:
-    'bg-light-surface dark:bg-dark-surface border border-light-border dark:border-dark-border text-light-text dark:text-dark-text hover:bg-light-hover dark:hover:bg-dark-hover',
+    'bg-surface-card border border-border-default text-foreground hover:bg-surface-hover',
   ghost:
-    'text-light-muted dark:text-dark-muted hover:bg-light-hover dark:hover:bg-dark-hover hover:text-light-text dark:hover:text-dark-text',
+    'text-foreground-muted hover:bg-surface-hover hover:text-foreground',
   destructive:
     'bg-red-600 text-white hover:bg-red-700 shadow-md shadow-red-600/20',
 };
@@ -49,7 +49,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <motion.button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:ring-offset-2 focus:ring-offset-light-bg dark:focus:ring-offset-dark-bg disabled:opacity-50 disabled:pointer-events-none',
+          'inline-flex items-center justify-center font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:ring-offset-2 focus:ring-offset-surface-base disabled:opacity-50 disabled:pointer-events-none',
           variantClasses[variant],
           sizeClasses[size],
           className

@@ -34,16 +34,16 @@ export default function PageTable({
   const navigate = useNavigate();
 
   return (
-    <div className={cn('overflow-x-auto rounded-xl border border-light-border dark:border-dark-border', className)}>
+    <div className={cn('overflow-x-auto rounded-xl border border-border-default', className)}>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-light-border dark:border-dark-border bg-light-hover/50 dark:bg-dark-hover/50">
+          <tr className="border-b border-border-default bg-surface-hover/50 bg-surface-hover/50">
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={cn(
-                  'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-light-muted dark:text-dark-muted',
-                  col.sortable && 'cursor-pointer hover:text-light-text dark:hover:text-dark-text select-none'
+                  'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground-muted',
+                  col.sortable && 'cursor-pointer hover:text-foreground select-none'
                 )}
                 onClick={() => col.sortable && onSort(col.key)}
               >
@@ -64,11 +64,11 @@ export default function PageTable({
             ))}
           </tr>
         </thead>
-        <tbody className="divide-y divide-light-border dark:divide-dark-border">
+        <tbody className="divide-y divide-border-default">
           {pages.map((page, idx) => (
             <motion.tr
               key={page.id}
-              className="hover:bg-light-hover dark:hover:bg-dark-hover cursor-pointer transition-colors"
+              className="hover:bg-surface-hover cursor-pointer transition-colors"
               onClick={() =>
                 navigate(`/university/${universityId}/page/${page.id}`)
               }
@@ -78,7 +78,7 @@ export default function PageTable({
             >
               <td className="px-4 py-3">
                 <div className="flex items-center gap-2">
-                  <span className="font-medium text-light-text dark:text-dark-text">
+                  <span className="font-medium text-foreground">
                     {truncate(page.ai_title || page.original_title, 40)}
                   </span>
                   <a
@@ -86,12 +86,12 @@ export default function PageTable({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-light-muted dark:text-dark-muted hover:text-brand-primary transition-colors"
+                    className="text-foreground-muted hover:text-brand-primary transition-colors"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
-                <p className="text-xs text-light-muted dark:text-dark-muted mt-0.5 truncate max-w-xs">
+                <p className="text-xs text-foreground-muted mt-0.5 truncate max-w-xs">
                   {page.url}
                 </p>
               </td>
@@ -106,7 +106,7 @@ export default function PageTable({
                   {page.category}
                 </span>
               </td>
-              <td className="px-4 py-3 text-light-muted dark:text-dark-muted">
+              <td className="px-4 py-3 text-foreground-muted">
                 {page.depth}
               </td>
               <td className="px-4 py-3">
@@ -140,7 +140,7 @@ export default function PageTable({
                 </div>
               </td>
               <td className="px-4 py-3">
-                <span className="text-xs text-light-muted dark:text-dark-muted">
+                <span className="text-xs text-foreground-muted">
                   {page.content_tags.length}
                 </span>
               </td>
@@ -149,7 +149,7 @@ export default function PageTable({
         </tbody>
       </table>
       {pages.length === 0 && (
-        <div className="py-12 text-center text-sm text-light-muted dark:text-dark-muted">
+        <div className="py-12 text-center text-sm text-foreground-muted">
           No pages found matching your criteria.
         </div>
       )}
