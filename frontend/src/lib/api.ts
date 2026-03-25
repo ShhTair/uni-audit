@@ -8,6 +8,7 @@ import type {
   PaginatedResponse,
   PageFilters,
   CreateUniversityPayload,
+  Guide,
 } from './types';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:8000';
@@ -149,6 +150,28 @@ export function useDeleteUniversity() {
       }),
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['universities'] });
+    },
+  });
+}
+
+export function useGuide(universityId: string) {
+  return useQuery<Guide>({
+    queryKey: ['guide', universityId],
+    queryFn: () => apiFetch<Guide>(`/api/universities/${universityId}/guide`),
+    enabled: !!universityId,
+    retry: false,
+  });
+}
+
+export function useGenerateGuide() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (universityId: string) =>
+      apiFetch<Guide>(`/api/universities/${universityId}/generate-guide`, {
+        method: 'POST',
+      }),
+    onSuccess: (_data, universityId) => {
+      queryClient.invalidateQueries({ queryKey: ['guide', universityId] });
     },
   });
 }

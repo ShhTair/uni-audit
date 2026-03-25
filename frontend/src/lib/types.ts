@@ -186,3 +186,14 @@ export interface CreateUniversityPayload {
   domains: string[];
   country: string;
 }
+
+export interface Guide {
+  id: string;
+  university_id: string;
+  html: string;
+  sections_found: string[];
+  sections_missing: string[];
+  completeness_score: number;
+  word_count: number;
+  created_at: string;
+}

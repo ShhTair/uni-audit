@@ -5,6 +5,7 @@ import Dashboard from '@/pages/Dashboard';
 import UniversityDetail from '@/pages/UniversityDetail';
 import PageReport from '@/pages/PageReport';
 import Brandbook from '@/pages/Brandbook';
+import GuideGenerator from '@/pages/GuideGenerator';
 
 export default function App() {
   return (
@@ -13,6 +14,7 @@ export default function App() {
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/university/:id" element={<UniversityDetail />} />
+          <Route path="/university/:id/guide" element={<GuideGenerator />} />
           <Route path="/university/:id/page/:pageId" element={<PageReport />} />
           <Route path="/brandbook" element={<Brandbook />} />
         </Route>

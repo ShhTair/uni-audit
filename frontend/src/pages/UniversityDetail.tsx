@@ -1,5 +1,5 @@
 import { useState, useMemo } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
   Play,
@@ -20,6 +20,7 @@ import {
   Zap,
   ChevronLeft,
   ChevronRight,
+  BookOpen,
 } from 'lucide-react';
 import {
   useUniversity,
@@ -63,6 +64,7 @@ const tabs = [
 
 export default function UniversityDetail() {
   const { id } = useParams<{ id: string }>();
+  const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState('overview');
   const [pageFilters, setPageFilters] = useState<PageFilters>({
     page: 1,
@@ -146,6 +148,15 @@ export default function UniversityDetail() {
                 loading={startAnalysis.isPending}
               >
                 Start Analysis
+              </Button>
+            )}
+            {university.status === 'completed' && (
+              <Button
+                variant="secondary"
+                icon={<BookOpen className="w-4 h-4" />}
+                onClick={() => navigate(`/university/${id}/guide`)}
+              >
+                Generate Guide
               </Button>
             )}
             <Badge

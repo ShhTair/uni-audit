@@ -14,6 +14,7 @@ from src.analyzer.analyzer import PageAnalyzer
 from src.analyzer.metrics import MetricsCalculator
 from src.config import settings
 from src.crawler.crawler import UniversityCrawler
+from src.generator.guide_generator import generate_guide
 from src.models.university import (
     CrawlConfig,
     UniversityCreate,
@@ -415,3 +416,56 @@ async def get_metrics(university_id: str) -> dict[str, Any]:
     calc = MetricsCalculator(db=db, university_id=university_id)
     metrics = await calc.calculate()
     return metrics
+
+
+# ------------------------------------------------------------------
+# Admission Guide
+# ------------------------------------------------------------------
+
+
+@router.post("/universities/{university_id}/generate-guide")
+async def generate_guide_endpoint(university_id: str) -> dict[str, Any]:
+    db = get_db()
+    oid = _validate_object_id(university_id)
+    uni = await db.universities.find_one({"_id": oid})
+    if not uni:
+        raise HTTPException(status_code=404, detail="University not found")
+
+    analyzed_count = await db.pages.count_documents({"university_id": oid, "status": "analyzed"})
+    if analyzed_count == 0:
+        raise HTTPException(
+            status_code=400,
+            detail="No analyzed pages found. Run crawl and analysis first.",
+        )
+
+    try:
+        result = await generate_guide(university_id=university_id, db=db)
+    except Exception as exc:
+        logger.exception("Guide generation failed for %s: %s", university_id, exc)
+        raise HTTPException(status_code=500, detail=f"Guide generation failed: {exc}")
+
+    return {
+        "university_id": university_id,
+        "sections_found": result["sections_found"],
+        "sections_missing": result["sections_missing"],
+        "completeness_score": result["completeness_score"],
+        "word_count": result["word_count"],
+        "html": result["html"],
+    }
+
+
+@router.get("/universities/{university_id}/guide")
+async def get_guide(university_id: str) -> dict[str, Any]:
+    db = get_db()
+    _validate_object_id(university_id)
+
+    guide = await db.guides.find_one({"university_id": university_id})
+    if not guide:
+        raise HTTPException(status_code=404, detail="Guide not found. Generate it first.")
+
+    guide.pop("_id", None)
+    # Convert datetime fields for JSON serialization
+    if "generated_at" in guide and hasattr(guide["generated_at"], "isoformat"):
+        guide["generated_at"] = guide["generated_at"].isoformat()
+
+    return guide

@@ -1,0 +1,20 @@
+smtp:
+  host: smtp.gmail.com
+  port: 587
+  user: ""  # Fill in
+  password: ""  # Fill in (app password)
+
+sender:
+  name: "Tair"
+  title: "Founder, UniAudit"
+  email: ""  # Fill in
+  calendar_link: ""  # Calendly or similar
+
+outreach:
+  delay_between_emails_seconds: 60
+  followup_1_days: 4
+  followup_2_days: 11
+  max_emails_per_day: 30
+
+report_base_url: "https://uni-audit.vercel.app/university"
+guide_base_url: "https://uni-audit.vercel.app/university"
