@@ -65,7 +65,7 @@ export default function Dashboard() {
 
       {!isLoading && universities && universities.length === 0 && (
         <EmptyState
-          icon={<GraduationCap className="w-8 h-8" />}
+          icon={GraduationCap}
           title="No universities yet"
           description="Add your first university to start auditing their admission website."
           action={{ label: 'Add University', onClick: () => setModalOpen(true) }}

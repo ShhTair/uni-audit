@@ -112,7 +112,7 @@ export default function UniversityDetail() {
   if (!university) {
     return (
       <EmptyState
-        icon={<Globe className="w-8 h-8" />}
+        icon={Globe}
         title="University not found"
         description="The university you are looking for does not exist."
       />
@@ -282,7 +282,7 @@ export default function UniversityDetail() {
 
             {!summary && (
               <EmptyState
-                icon={<BarChart3 className="w-8 h-8" />}
+                icon={BarChart3}
                 title="No data yet"
                 description="Start a crawl and analysis to see audit results."
               />
@@ -411,7 +411,7 @@ export default function UniversityDetail() {
               </>
             ) : (
               <EmptyState
-                icon={<FileText className="w-8 h-8" />}
+                icon={FileText}
                 title="No pages found"
                 description="This university hasn't been crawled yet."
               />
@@ -432,7 +432,7 @@ export default function UniversityDetail() {
               <SiteTree tree={tree} />
             ) : (
               <EmptyState
-                icon={<GitBranch className="w-8 h-8" />}
+                icon={GitBranch}
                 title="No tree data"
                 description="Crawl and analyze the university to generate the site tree."
               />
@@ -453,7 +453,7 @@ export default function UniversityDetail() {
               <SiteGraph data={graph} />
             ) : (
               <EmptyState
-                icon={<Network className="w-8 h-8" />}
+                icon={Network}
                 title="No graph data"
                 description="Crawl and analyze the university to generate the site graph."
               />
@@ -478,7 +478,7 @@ export default function UniversityDetail() {
               <MetricsCharts metrics={metrics} />
             ) : (
               <EmptyState
-                icon={<BarChart3 className="w-8 h-8" />}
+                icon={BarChart3}
                 title="No metrics data"
                 description="Complete an analysis to see detailed metrics."
               />

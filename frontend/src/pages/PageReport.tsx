@@ -56,7 +56,7 @@ export default function PageReport() {
   if (!page) {
     return (
       <EmptyState
-        icon={<FileText className="w-8 h-8" />}
+        icon={FileText}
         title="Page not found"
         description="The page you are looking for does not exist."
       />

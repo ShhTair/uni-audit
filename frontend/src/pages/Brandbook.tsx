@@ -608,7 +608,7 @@ export default function Brandbook() {
             <h3 className="text-sm font-semibold text-foreground mb-4">Empty State</h3>
             <Card variant="outlined" padding="none">
               <EmptyState
-                icon={<FileText className="w-8 h-8" />}
+                icon={FileText}
                 title="No data found"
                 description="Start by adding items or adjusting your filters."
                 action={{ label: 'Add Item', onClick: () => {} }}
