@@ -11,7 +11,11 @@ import type {
   Guide,
 } from './types';
 
-const API_URL = import.meta.env.VITE_API_URL || '';
+// Hard fix for Mixed Content: Force relative path in production so Vercel Rewrites catch it.
+// If we are in dev, use VITE_API_URL or localhost.
+const API_URL = import.meta.env.DEV 
+  ? (import.meta.env.VITE_API_URL || 'http://localhost:8000') 
+  : '';
 
 async function apiFetch<T>(path: string, options?: RequestInit): Promise<T> {
   const res = await fetch(`${API_URL}${path}`, {
@@ -61,7 +65,7 @@ export function useUniversityPages(id: string, filters: PageFilters = {}) {
     queryKey: ['university-pages', id, filters],
     queryFn: () =>
       apiFetch<PaginatedResponse<Page>>(
-        `/api/universities/${id}/pages${query ? `?${query}` : ''}`
+        `/api/universities/${id}/pages${query ? \`?\${query}\` : ''}`
       ),
     enabled: !!id,
   });
