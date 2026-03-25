@@ -1,47 +1,43 @@
-import { motion } from 'framer-motion';
-import { cn } from '@/lib/utils';
-import Button from './Button';
 import type { ReactNode } from 'react';
+import type { LucideIcon } from 'lucide-react';
 
 interface EmptyStateProps {
-  icon: ReactNode;
+  icon: any;
   title: string;
-  description: string;
-  action?: {
-    label: string;
-    onClick: () => void;
-  };
+  description?: string;
+  action?: { label: string; onClick: () => void; icon?: LucideIcon };
+  children?: ReactNode;
   className?: string;
 }
 
-export default function EmptyState({
-  icon,
-  title,
-  description,
-  action,
-  className,
-}: EmptyStateProps) {
+/**
+ * Consistent empty state: icon, title, optional description, primary action.
+ */
+export function EmptyState({ icon: Icon, title, description, action, children, className = '' }: EmptyStateProps) {
+  const ActionIcon = action?.icon;
   return (
-    <motion.div
-      className={cn('flex flex-col items-center justify-center py-16 text-center', className)}
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5 }}
+    <div
+      className={`rounded-lg border border-border-default bg-surface-card p-8 text-center ${className}`}
+      role="status"
+      aria-label={title}
     >
-      <div className="w-16 h-16 rounded-2xl bg-light-hover dark:bg-dark-hover flex items-center justify-center text-light-muted dark:text-dark-muted mb-4">
-        {icon}
+      <div className="flex h-12 w-12 items-center justify-center rounded-lg bg-surface-hover mx-auto mb-4">
+        <Icon className="h-6 w-6 text-foreground-muted" aria-hidden />
       </div>
-      <h3 className="text-lg font-semibold text-light-text dark:text-dark-text mb-2">
-        {title}
-      </h3>
-      <p className="text-sm text-light-muted dark:text-dark-muted max-w-sm mb-6">
-        {description}
-      </p>
+      <h3 className="text-base font-semibold font-display text-foreground">{title}</h3>
+      {description && <p className="mt-2 text-sm text-foreground-muted max-w-sm mx-auto">{description}</p>}
       {action && (
-        <Button variant="primary" onClick={action.onClick}>
+        <button
+          type="button"
+          onClick={action.onClick}
+          className="mt-5 btn-primary py-2 px-5 rounded-lg text-sm inline-flex items-center gap-2"
+        >
+          {ActionIcon && <ActionIcon className="h-4 w-4" aria-hidden />}
           {action.label}
-        </Button>
+        </button>
       )}
-    </motion.div>
+      {children && <div className="mt-4">{children}</div>}
+    </div>
   );
 }
+export default EmptyState;
