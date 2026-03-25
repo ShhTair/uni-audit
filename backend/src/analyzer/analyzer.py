@@ -638,7 +638,7 @@ Page content:
             "Content-Type": "application/json",
             "api-key": self._api_key,
         }
-        params = {"api-version": self._api_version}
+        # NOTE: api-version as query param is NOT supported by this endpoint
         body = {
             "model": self._model,
             "messages": [
@@ -656,7 +656,7 @@ Page content:
         for attempt in range(max_retries):
             try:
                 async with httpx.AsyncClient(timeout=90) as client:
-                    resp = await client.post(url, headers=headers, params=params, json=body)
+                    resp = await client.post(url, headers=headers, json=body)
 
                     if resp.status_code == 429:
                         retry_after = int(resp.headers.get("retry-after", base_delay * (2 ** attempt)))

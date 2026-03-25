@@ -462,7 +462,6 @@ class AdmissionGuideGenerator:
             "Content-Type": "application/json",
             "api-key": self._api_key,
         }
-        params = {"api-version": self._api_version}
         body = {
             "model": self._model,
             "messages": [
@@ -470,16 +469,13 @@ class AdmissionGuideGenerator:
                 {"role": "user", "content": user_message},
             ],
             "max_completion_tokens": 2048,
-            "temperature": 0.4,
         }
 
         retries = 3
         for attempt in range(retries):
             try:
                 async with httpx.AsyncClient(timeout=90) as client:
-                    resp = await client.post(
-                        url, headers=headers, params=params, json=body
-                    )
+                    resp = await client.post(url, headers=headers, json=body)
                     if resp.status_code == 429:
                         retry_after = int(resp.headers.get("retry-after", 5))
                         logger.warning("Rate limited, waiting %ds", retry_after)
