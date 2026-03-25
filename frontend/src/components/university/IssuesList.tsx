@@ -46,8 +46,8 @@ export default function IssuesList({ issues, className }: IssuesListProps) {
             className={cn(
               'px-3 py-1 text-xs font-medium rounded-full transition-all',
               filter === f
-                ? 'bg-brand-primary/10 text-brand-primary'
-                : 'text-foreground-muted hover:bg-surface-hover'
+                ? 'bg-primary/10 text-primary'
+                : 'text-muted-foreground hover:bg-zinc-900/50'
             )}
           >
             {f.charAt(0).toUpperCase() + f.slice(1)} ({counts[f]})
@@ -68,11 +68,11 @@ export default function IssuesList({ issues, className }: IssuesListProps) {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ duration: 0.2 }}
-                className="border border-border-default rounded-lg overflow-hidden"
+                className="border border-border rounded-lg overflow-hidden"
               >
                 <button
                   onClick={() => setExpandedIndex(isExpanded ? null : index)}
-                  className="flex items-center gap-3 w-full p-3 hover:bg-surface-hover transition-colors text-left"
+                  className="flex items-center gap-3 w-full p-3 hover:bg-zinc-900/50 transition-colors text-left"
                 >
                   <Icon
                     className={cn(
@@ -92,7 +92,7 @@ export default function IssuesList({ issues, className }: IssuesListProps) {
                     animate={{ rotate: isExpanded ? 180 : 0 }}
                     transition={{ duration: 0.2 }}
                   >
-                    <ChevronDown className="w-4 h-4 text-foreground-muted" />
+                    <ChevronDown className="w-4 h-4 text-muted-foreground" />
                   </motion.div>
                 </button>
                 <AnimatePresence>
@@ -102,9 +102,9 @@ export default function IssuesList({ issues, className }: IssuesListProps) {
                       animate={{ height: 'auto', opacity: 1 }}
                       exit={{ height: 0, opacity: 0 }}
                       transition={{ duration: 0.2 }}
-                      className="border-t border-border-default"
+                      className="border-t border-border"
                     >
-                      <div className="p-3 text-sm text-foreground-muted">
+                      <div className="p-3 text-sm text-muted-foreground">
                         <div className="flex items-center gap-2 mb-1">
                           <span className="font-medium">Category:</span>
                           <Badge variant="default" size="sm">
@@ -127,7 +127,7 @@ export default function IssuesList({ issues, className }: IssuesListProps) {
       </div>
 
       {filteredIssues.length === 0 && (
-        <p className="text-sm text-foreground-muted text-center py-6">
+        <p className="text-sm text-muted-foreground text-center py-6">
           No issues found for this filter.
         </p>
       )}

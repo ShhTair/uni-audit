@@ -24,8 +24,8 @@ export function PageTabs({ tabs }: PageTabsProps) {
           className={({ isActive }) =>
             `relative px-4 py-2.5 text-sm font-medium transition-colors ${
               isActive
-                ? 'text-brand-primary'
-                : 'text-foreground-muted hover:text-foreground'
+                ? 'text-primary'
+                : 'text-muted-foreground hover:text-foreground'
             }`
           }
         >
@@ -33,7 +33,7 @@ export function PageTabs({ tabs }: PageTabsProps) {
             <>
               {tab.label}
               {isActive && (
-                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-brand-primary rounded-full" />
+                <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary rounded-full" />
               )}
             </>
           )}

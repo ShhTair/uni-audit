@@ -13,11 +13,11 @@ interface CardProps extends Omit<HTMLMotionProps<'div'>, 'children'> {
 
 const variantClasses: Record<CardVariant, string> = {
   default:
-    'bg-surface-card border border-border-default',
+    'bg-card border border-border',
   elevated:
-    'bg-surface-card border border-border-default shadow-lg dark:shadow-2xl dark:shadow-black/20',
+    'bg-card border border-border shadow-sm dark:shadow-md ',
   outlined:
-    'bg-transparent border border-border-default',
+    'bg-transparent border border-border',
 };
 
 const paddingClasses = {
@@ -43,7 +43,7 @@ const Card = forwardRef<HTMLDivElement, CardProps>(
           hoverable
             ? {
                 y: -2,
-                boxShadow: '0 8px 30px rgba(99, 102, 241, 0.1)',
+                boxShadow: '0 4px 12px rgba(0, 0, 0, 0.1)',
                 transition: { duration: 0.2 },
               }
             : undefined

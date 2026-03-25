@@ -21,7 +21,7 @@ export default function Tabs({ tabs, activeTab, onChange, className }: TabsProps
   return (
     <div
       className={cn(
-        'flex items-center gap-1 border-b border-border-default',
+        'flex items-center gap-1 border-b border-border',
         className
       )}
     >
@@ -31,8 +31,8 @@ export default function Tabs({ tabs, activeTab, onChange, className }: TabsProps
           className={cn(
             'relative px-4 py-2.5 text-sm font-medium transition-colors',
             activeTab === tab.id
-              ? 'text-brand-primary'
-              : 'text-foreground-muted hover:text-foreground'
+              ? 'text-primary'
+              : 'text-muted-foreground hover:text-foreground'
           )}
           onClick={() => onChange(tab.id)}
           onMouseEnter={() => setHoveredTab(tab.id)}
@@ -44,7 +44,7 @@ export default function Tabs({ tabs, activeTab, onChange, className }: TabsProps
           </span>
           {hoveredTab === tab.id && activeTab !== tab.id && (
             <motion.div
-              className="absolute inset-0 bg-surface-hover bg-surface-hover rounded-lg"
+              className="absolute inset-0 bg-zinc-900/50 bg-zinc-900/50 rounded-lg"
               layoutId="tab-hover"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}

@@ -64,12 +64,12 @@ export function Breadcrumbs() {
 
   return (
     <nav
-      className="flex items-center gap-1.5 text-[13px] text-foreground-muted mb-4 animate-fade-in flex-wrap"
+      className="flex items-center gap-1.5 text-[13px] text-muted-foreground mb-4 animate-fade-in flex-wrap"
       aria-label="Breadcrumb"
     >
       <Link
         to="/dashboard"
-        className="flex items-center gap-1 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded px-0.5 py-0.5 -ml-0.5 transition-colors"
+        className="flex items-center gap-1 hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded px-0.5 py-0.5 -ml-0.5 transition-colors"
       >
         <Home className="h-3.5 w-3.5 shrink-0" aria-hidden />
         <span>Home</span>
@@ -86,7 +86,7 @@ export function Breadcrumbs() {
             ) : (
               <Link
                 to={path}
-                className="hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-brand-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded px-0.5 transition-colors"
+                className="hover:text-foreground focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2 focus-visible:ring-offset-background rounded px-0.5 transition-colors"
               >
                 {segmentLabel(seg)}
               </Link>

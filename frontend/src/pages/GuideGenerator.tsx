@@ -96,20 +96,20 @@ function ProgressStepper({ currentStep }: { currentStep: StepId }) {
                 isCompleted
                   ? 'bg-emerald-500'
                   : isActive
-                  ? 'bg-brand-primary'
+                  ? 'bg-primary'
                   : 'bg-border-subtle'
               )}
             >
               {isCompleted ? (
-                <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-foreground" />
               ) : isActive ? (
                 <motion.div
-                  className="w-2.5 h-2.5 rounded-full bg-white"
+                  className="w-2.5 h-2.5 rounded-full bg-background"
                   animate={{ scale: [1, 1.3, 1] }}
                   transition={{ repeat: Infinity, duration: 1 }}
                 />
               ) : (
-                <div className="w-2 h-2 rounded-full bg-surface-hover" />
+                <div className="w-2 h-2 rounded-full bg-zinc-900/50" />
               )}
             </div>
             <span
@@ -119,7 +119,7 @@ function ProgressStepper({ currentStep }: { currentStep: StepId }) {
                   ? 'text-foreground font-semibold'
                   : isCompleted
                   ? 'text-emerald-500 font-medium'
-                  : 'text-foreground-muted'
+                  : 'text-muted-foreground'
               )}
             >
               {step.label}
@@ -158,7 +158,7 @@ function SectionList({
         </Badge>
       </div>
       {items.length === 0 ? (
-        <p className="text-xs text-foreground-muted italic">None</p>
+        <p className="text-xs text-muted-foreground italic">None</p>
       ) : (
         <ul className="space-y-1.5">
           {items.map((section) => (
@@ -288,18 +288,18 @@ export default function GuideGenerator() {
           <Card variant="elevated" padding="lg">
             <div className="flex flex-col items-center text-center gap-6 py-6">
               <motion.div
-                className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center shadow-lg shadow-brand-primary/30"
+                className="w-16 h-16 rounded-2xl gradient-bg flex items-center justify-center shadow-sm shadow-primary/30"
                 animate={{ rotate: [0, 3, -3, 0] }}
                 transition={{ repeat: Infinity, duration: 4, ease: 'easeInOut' }}
               >
-                <BookOpen className="w-8 h-8 text-white" />
+                <BookOpen className="w-8 h-8 text-foreground" />
               </motion.div>
 
               <div className="max-w-lg">
                 <h2 className="text-2xl font-bold text-foreground mb-2">
                   Generate an Admission Guide
                 </h2>
-                <p className="text-foreground-muted leading-relaxed">
+                <p className="text-muted-foreground leading-relaxed">
                   UniAudit will crawl and synthesize all admission-related content
                   from this university's website into a single, structured guide
                   for prospective students — including deadlines, requirements,
@@ -315,14 +315,14 @@ export default function GuideGenerator() {
                 ].map((item) => (
                   <div
                     key={item.label}
-                    className="flex items-start gap-3 p-3 rounded-lg bg-surface-hover bg-surface-hover"
+                    className="flex items-start gap-3 p-3 rounded-lg bg-zinc-900/50 bg-zinc-900/50"
                   >
-                    <span className="text-brand-primary mt-0.5 flex-shrink-0">{item.icon}</span>
+                    <span className="text-primary mt-0.5 flex-shrink-0">{item.icon}</span>
                     <div>
                       <p className="text-xs font-semibold text-foreground">
                         {item.label}
                       </p>
-                      <p className="text-xs text-foreground-muted">{item.sub}</p>
+                      <p className="text-xs text-muted-foreground">{item.sub}</p>
                     </div>
                   </div>
                 ))}
@@ -346,7 +346,7 @@ export default function GuideGenerator() {
         <motion.div
           initial={{ opacity: 0, y: 8 }}
           animate={{ opacity: 1, y: 0 }}
-          className="mb-4 flex items-center gap-2 text-sm text-foreground-muted"
+          className="mb-4 flex items-center gap-2 text-sm text-muted-foreground"
         >
           <CheckCircle2 className="w-4 h-4 text-emerald-500" />
           Guide generated on {formatDate(guide.created_at)}
@@ -380,7 +380,7 @@ export default function GuideGenerator() {
                     transition={{ repeat: Infinity, duration: 2, ease: 'easeInOut', delay: 0.3 }}
                   />
                   <div className="absolute inset-4 rounded-full gradient-bg flex items-center justify-center">
-                    <Sparkles className="w-5 h-5 text-white" />
+                    <Sparkles className="w-5 h-5 text-foreground" />
                   </div>
                 </div>
 
@@ -388,7 +388,7 @@ export default function GuideGenerator() {
                   <h3 className="font-semibold text-foreground mb-1">
                     Building your guide…
                   </h3>
-                  <p className="text-sm text-foreground-muted">
+                  <p className="text-sm text-muted-foreground">
                     This may take a minute
                   </p>
                 </div>
@@ -420,7 +420,7 @@ export default function GuideGenerator() {
                     size="lg"
                     label="Completeness"
                   />
-                  <p className="text-xs text-center text-foreground-muted max-w-[120px]">
+                  <p className="text-xs text-center text-muted-foreground max-w-[120px]">
                     How complete the guide is compared to an ideal admission guide
                   </p>
                 </div>
@@ -515,7 +515,7 @@ export default function GuideGenerator() {
                   transition={{ delay: i * 0.06 }}
                 >
                   <Card variant="outlined" padding="sm">
-                    <p className="text-xs text-foreground-muted mb-1">
+                    <p className="text-xs text-muted-foreground mb-1">
                       {stat.label}
                     </p>
                     <p className={cn('text-xl font-bold', stat.color)}>

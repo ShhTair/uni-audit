@@ -96,7 +96,7 @@ export default function Dashboard() {
                       <h3 className="font-semibold text-foreground truncate">
                         {uni.name}
                       </h3>
-                      <p className="text-xs text-foreground-muted">
+                      <p className="text-xs text-muted-foreground">
                         {uni.domains.length} domain{uni.domains.length !== 1 ? 's' : ''}
                       </p>
                     </div>
@@ -120,13 +120,13 @@ export default function Dashboard() {
                     </div>
                     <div className="grid grid-cols-3 gap-3 text-center">
                       <div>
-                        <div className="flex items-center justify-center gap-1 text-foreground-muted">
+                        <div className="flex items-center justify-center gap-1 text-muted-foreground">
                           <FileText className="w-3.5 h-3.5" />
                         </div>
                         <p className="text-sm font-semibold text-foreground">
                           {uni.summary.total_pages}
                         </p>
-                        <p className="text-[10px] text-foreground-muted">
+                        <p className="text-[10px] text-muted-foreground">
                           Pages
                         </p>
                       </div>
@@ -137,7 +137,7 @@ export default function Dashboard() {
                         <p className="text-sm font-semibold text-red-500">
                           {uni.summary.critical_issues}
                         </p>
-                        <p className="text-[10px] text-foreground-muted">
+                        <p className="text-[10px] text-muted-foreground">
                           Critical
                         </p>
                       </div>
@@ -148,7 +148,7 @@ export default function Dashboard() {
                         <p className="text-sm font-semibold text-amber-500">
                           {uni.summary.warnings}
                         </p>
-                        <p className="text-[10px] text-foreground-muted">
+                        <p className="text-[10px] text-muted-foreground">
                           Warnings
                         </p>
                       </div>
@@ -158,7 +158,7 @@ export default function Dashboard() {
 
                 {!uni.summary && (
                   <div className="py-6 text-center">
-                    <p className="text-xs text-foreground-muted">
+                    <p className="text-xs text-muted-foreground">
                       {uni.status === 'pending'
                         ? 'Waiting to start crawl'
                         : uni.status === 'crawling'
@@ -172,11 +172,11 @@ export default function Dashboard() {
                   </div>
                 )}
 
-                <div className="mt-3 pt-3 border-t border-border-default flex items-center justify-between">
-                  <span className="text-[10px] text-foreground-muted">
+                <div className="mt-3 pt-3 border-t border-border flex items-center justify-between">
+                  <span className="text-[10px] text-muted-foreground">
                     Added {formatDateShort(uni.created_at)}
                   </span>
-                  <span className="text-xs text-brand-primary font-medium">
+                  <span className="text-xs text-primary font-medium">
                     View Details
                   </span>
                 </div>

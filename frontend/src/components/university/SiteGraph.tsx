@@ -44,18 +44,18 @@ function CustomNode({ data }: NodeProps) {
       onMouseEnter={() => setHovered(true)}
       onMouseLeave={() => setHovered(false)}
     >
-      <Handle type="target" position={Position.Top} className="!bg-brand-primary !w-2 !h-2 !border-0" />
+      <Handle type="target" position={Position.Top} className="!bg-primary !w-2 !h-2 !border-0" />
       <div
         className={cn(
-          'px-3 py-2 rounded-lg border-2 bg-surface-card shadow-lg transition-all',
-          hovered && 'ring-2 ring-brand-primary/50'
+          'px-3 py-2 rounded-lg border-2 bg-card shadow-sm transition-all',
+          hovered && 'ring-2 ring-primary/50'
         )}
         style={{ borderColor: data.color as string, minWidth: data.size as number }}
       >
         <p className="text-xs font-medium text-foreground truncate max-w-[150px]">
           {data.label as string}
         </p>
-        <p className="text-[10px] text-foreground-muted">
+        <p className="text-[10px] text-muted-foreground">
           {data.category as string}
         </p>
       </div>
@@ -65,14 +65,14 @@ function CustomNode({ data }: NodeProps) {
             initial={{ opacity: 0, y: 5 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 5 }}
-            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 p-3 rounded-lg bg-gray-900 text-white text-xs shadow-xl min-w-[200px]"
+            className="absolute top-full left-1/2 -translate-x-1/2 mt-2 z-50 p-3 rounded-lg bg-zinc-900 text-foreground text-xs shadow-xl min-w-[200px]"
           >
             <p className="font-medium mb-1">{data.fullTitle as string}</p>
-            <p className="text-gray-400 text-[10px] mb-2 break-all">{data.url as string}</p>
+            <p className="text-zinc-400 text-[10px] mb-2 break-all">{data.url as string}</p>
             <div className="flex items-center gap-2">
               <Badge variant="default" size="sm">{data.category as string}</Badge>
-              <span className="text-gray-400">Depth: {data.depth as number}</span>
-              <span className="text-gray-400">Links: {data.incomingLinks as number}</span>
+              <span className="text-zinc-400">Depth: {data.depth as number}</span>
+              <span className="text-zinc-400">Links: {data.incomingLinks as number}</span>
             </div>
             {(data.issueCount as number) > 0 && (
               <p className="text-red-400 mt-1">{data.issueCount as number} issues</p>
@@ -217,14 +217,14 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
           className={cn(
             'flex items-center gap-2 px-3 py-1.5 rounded-lg text-sm font-medium transition-all',
             showFilters
-              ? 'bg-brand-primary/10 text-brand-primary'
-              : 'text-foreground-muted hover:bg-surface-hover'
+              ? 'bg-primary/10 text-primary'
+              : 'text-muted-foreground hover:bg-zinc-900/50'
           )}
         >
           <Filter className="w-4 h-4" />
           Filters
         </button>
-        <span className="text-xs text-foreground-muted">
+        <span className="text-xs text-muted-foreground">
           {filteredNodes.length} nodes, {filteredEdges.length} edges
         </span>
       </div>
@@ -235,10 +235,10 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
             initial={{ height: 0, opacity: 0 }}
             animate={{ height: 'auto', opacity: 1 }}
             exit={{ height: 0, opacity: 0 }}
-            className="flex flex-wrap gap-4 p-4 rounded-xl border border-border-default bg-surface-card"
+            className="flex flex-wrap gap-4 p-4 rounded-xl border border-border bg-card"
           >
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Link Types
               </p>
               {linkTypeToggle('Header', 'showHeader')}
@@ -248,7 +248,7 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
               {linkTypeToggle('Breadcrumb', 'showBreadcrumb')}
             </div>
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Category
               </p>
               <select
@@ -256,7 +256,7 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
                 onChange={(e) =>
                   setFilters((f) => ({ ...f, category: e.target.value }))
                 }
-                className="px-3 py-1.5 text-sm rounded-lg border border-border-default bg-surface-card text-foreground"
+                className="px-3 py-1.5 text-sm rounded-lg border border-border bg-card text-foreground"
               >
                 <option value="">All</option>
                 {categories.map((cat) => (
@@ -267,7 +267,7 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
               </select>
             </div>
             <div className="space-y-2">
-              <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
+              <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                 Max Depth: {filters.maxDepth}
               </p>
               <input
@@ -288,7 +288,7 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
         )}
       </AnimatePresence>
 
-      <div className="h-[600px] rounded-xl border border-border-default overflow-hidden bg-surface-card">
+      <div className="h-[600px] rounded-xl border border-border overflow-hidden bg-card">
         <ReactFlow
           nodes={nodes}
           edges={edges}
@@ -300,9 +300,9 @@ export default function SiteGraph({ data, className }: SiteGraphProps) {
           maxZoom={2}
           defaultEdgeOptions={{ type: 'smoothstep' }}
         >
-          <Controls className="!bg-surface-card !border-border-default !shadow-lg [&_button]:!bg-surface-card [&_button]:!border-border-default [&_button]:!text-foreground" />
+          <Controls className="!bg-card !border-border !shadow-sm [&_button]:!bg-card [&_button]:!border-border [&_button]:!text-foreground" />
           <MiniMap
-            className="!bg-surface-card  !border-border-default "
+            className="!bg-card  !border-border "
             nodeColor={(node) => (node.data.color as string) || '#6366F1'}
             maskColor="rgba(0,0,0,0.1)"
           />

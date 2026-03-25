@@ -177,7 +177,7 @@ export default function UniversityDetail() {
             exit={{ opacity: 0, y: -10 }}
             className="space-y-6"
           >
-            <div className="flex items-center gap-4 text-sm text-foreground-muted">
+            <div className="flex items-center gap-4 text-sm text-muted-foreground">
               <span>Created {formatDate(university.created_at)}</span>
               <span>Updated {formatDate(university.updated_at)}</span>
             </div>
@@ -267,7 +267,7 @@ export default function UniversityDetail() {
                                 transition={{ delay: index * 0.04, duration: 0.6 }}
                               />
                             </div>
-                            <span className="text-xs font-medium text-foreground-muted w-10 text-right">
+                            <span className="text-xs font-medium text-muted-foreground w-10 text-right">
                               {Math.round(score)}%
                             </span>
                           </motion.div>
@@ -315,7 +315,7 @@ export default function UniversityDetail() {
                     page: 1,
                   }))
                 }
-                className="px-3 py-2 text-sm rounded-lg border border-border-default bg-surface-card text-foreground"
+                className="px-3 py-2 text-sm rounded-lg border border-border bg-card text-foreground"
               >
                 <option value="">All Categories</option>
                 <option value="admissions">Admissions</option>
@@ -338,7 +338,7 @@ export default function UniversityDetail() {
                     page: 1,
                   }));
                 }}
-                className="px-3 py-2 text-sm rounded-lg border border-border-default bg-surface-card text-foreground"
+                className="px-3 py-2 text-sm rounded-lg border border-border bg-card text-foreground"
               >
                 <option value="0-">All Depths</option>
                 <option value="0-0">Homepage</option>
@@ -366,7 +366,7 @@ export default function UniversityDetail() {
                 />
                 {pagesData.total_pages > 1 && (
                   <div className="flex items-center justify-between">
-                    <p className="text-sm text-foreground-muted">
+                    <p className="text-sm text-muted-foreground">
                       Showing {(pagesData.page - 1) * pagesData.per_page + 1} -{' '}
                       {Math.min(pagesData.page * pagesData.per_page, pagesData.total)} of{' '}
                       {pagesData.total} pages
@@ -386,7 +386,7 @@ export default function UniversityDetail() {
                       >
                         Prev
                       </Button>
-                      <span className="text-sm text-foreground-muted">
+                      <span className="text-sm text-muted-foreground">
                         {pagesData.page} / {pagesData.total_pages}
                       </span>
                       <Button

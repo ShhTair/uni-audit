@@ -16,13 +16,13 @@ interface ButtonProps extends Omit<HTMLMotionProps<'button'>, 'children'> {
 
 const variantClasses: Record<ButtonVariant, string> = {
   primary:
-    'gradient-bg text-white shadow-md shadow-brand-primary/20 hover:shadow-lg hover:shadow-brand-primary/30',
+    'gradient-bg text-foreground shadow-sm shadow-primary/20 hover:shadow-sm hover:shadow-primary/30',
   secondary:
-    'bg-surface-card border border-border-default text-foreground hover:bg-surface-hover',
+    'bg-card border border-border text-foreground hover:bg-zinc-900/50',
   ghost:
-    'text-foreground-muted hover:bg-surface-hover hover:text-foreground',
+    'text-muted-foreground hover:bg-zinc-900/50 hover:text-foreground',
   destructive:
-    'bg-red-600 text-white hover:bg-red-700 shadow-md shadow-red-600/20',
+    'bg-red-600 text-foreground hover:bg-red-700 shadow-sm shadow-red-600/20',
 };
 
 const sizeClasses: Record<ButtonSize, string> = {
@@ -49,7 +49,7 @@ const Button = forwardRef<HTMLButtonElement, ButtonProps>(
       <motion.button
         ref={ref}
         className={cn(
-          'inline-flex items-center justify-center font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:ring-offset-2 focus:ring-offset-surface-base disabled:opacity-50 disabled:pointer-events-none',
+          'inline-flex items-center justify-center font-medium rounded-lg transition-all focus:outline-none focus:ring-2 focus:ring-primary/50 focus:ring-offset-2 focus:ring-offset-background disabled:opacity-50 disabled:pointer-events-none',
           variantClasses[variant],
           sizeClasses[size],
           className

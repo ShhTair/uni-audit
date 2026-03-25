@@ -123,7 +123,7 @@ function ColorCard({
   return (
     <motion.div
       className={cn(
-        'rounded-xl border border-border-default overflow-hidden bg-surface-card',
+        'rounded-xl border border-border overflow-hidden bg-card',
         className
       )}
       whileHover={{ y: -3 }}
@@ -132,16 +132,16 @@ function ColorCard({
       <div className="h-24 relative group" style={{ backgroundColor: hex }}>
         <button
           onClick={copy}
-          className="absolute top-2 right-2 p-1.5 rounded-md bg-black/20 text-white opacity-0 group-hover:opacity-100 transition-opacity"
+          className="absolute top-2 right-2 p-1.5 rounded-md bg-black/20 text-foreground opacity-0 group-hover:opacity-100 transition-opacity"
         >
           {copied ? <Check className="w-3.5 h-3.5" /> : <Copy className="w-3.5 h-3.5" />}
         </button>
       </div>
       <div className="p-3">
         <p className="text-sm font-semibold text-foreground">{name}</p>
-        <p className="text-xs font-mono text-foreground-muted">{hex}</p>
-        <p className="text-xs font-mono text-foreground-muted">{rgb}</p>
-        <p className="text-xs text-foreground-muted mt-1">{usage}</p>
+        <p className="text-xs font-mono text-muted-foreground">{hex}</p>
+        <p className="text-xs font-mono text-muted-foreground">{rgb}</p>
+        <p className="text-xs text-muted-foreground mt-1">{usage}</p>
       </div>
     </motion.div>
   );
@@ -176,7 +176,7 @@ export default function Brandbook() {
   return (
     <div className="flex gap-8">
       <nav className="hidden lg:block w-48 shrink-0 sticky top-6 self-start">
-        <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">
           On this page
         </p>
         <div className="space-y-1">
@@ -187,8 +187,8 @@ export default function Brandbook() {
               className={cn(
                 'block px-3 py-1.5 text-sm rounded-lg transition-all',
                 activeSection === id
-                  ? 'text-brand-primary bg-brand-primary/10 font-medium'
-                  : 'text-foreground-muted hover:text-foreground'
+                  ? 'text-primary bg-primary/10 font-medium'
+                  : 'text-muted-foreground hover:text-foreground'
               )}
               onClick={(e) => {
                 e.preventDefault();
@@ -209,7 +209,7 @@ export default function Brandbook() {
             {Array.from({ length: 40 }).map((_, i) => (
               <motion.div
                 key={i}
-                className="absolute w-1 h-1 bg-white/20 rounded-full"
+                className="absolute w-1 h-1 bg-background/20 rounded-full"
                 style={{
                   left: `${Math.random() * 100}%`,
                   top: `${Math.random() * 100}%`,
@@ -241,14 +241,14 @@ export default function Brandbook() {
               transition={{ duration: 0.8 }}
             >
               <div className="inline-flex items-center gap-3 mb-6">
-                <div className="w-12 h-12 rounded-xl bg-white/20 backdrop-blur-sm flex items-center justify-center">
-                  <GraduationCap className="w-6 h-6 text-white" />
+                <div className="w-12 h-12 rounded-xl bg-background/20 backdrop-blur-sm flex items-center justify-center">
+                  <GraduationCap className="w-6 h-6 text-foreground" />
                 </div>
               </div>
-              <h1 className="text-5xl font-bold text-white mb-4">
+              <h1 className="text-5xl font-bold text-foreground mb-4">
                 UniAudit Brand Guidelines
               </h1>
-              <p className="text-lg text-white/80 max-w-2xl mx-auto">
+              <p className="text-lg text-foreground/80 max-w-2xl mx-auto">
                 A comprehensive design system for the UniAudit university website audit platform.
                 Built with precision, animated with care.
               </p>
@@ -272,7 +272,7 @@ export default function Brandbook() {
           <div>
             <h3 className="text-sm font-semibold text-foreground mb-3">Brand Gradient</h3>
             <div className="h-16 rounded-xl gradient-bg" />
-            <p className="text-xs text-foreground-muted mt-2 font-mono">
+            <p className="text-xs text-muted-foreground mt-2 font-mono">
               from-[#6366F1] via-[#8B5CF6] to-[#06B6D4]
             </p>
           </div>
@@ -329,7 +329,7 @@ export default function Brandbook() {
             <h3 className="text-sm font-semibold text-foreground mb-4">Font Families</h3>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <Card variant="default" padding="md">
-                <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">Primary Font</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Primary Font</p>
                 <p className="text-4xl font-sans text-foreground mb-2">Inter</p>
                 <div className="space-y-2 mt-4">
                   <p className="font-light text-foreground">Light (300) - The quick brown fox jumps over the lazy dog</p>
@@ -341,7 +341,7 @@ export default function Brandbook() {
                 </div>
               </Card>
               <Card variant="default" padding="md">
-                <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-3">Mono Font</p>
+                <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-3">Mono Font</p>
                 <p className="text-4xl font-mono text-foreground mb-2">JetBrains Mono</p>
                 <div className="space-y-2 mt-4 font-mono">
                   <p className="font-normal text-foreground">Regular (400) - const data = await fetch(url)</p>
@@ -356,41 +356,41 @@ export default function Brandbook() {
             <h3 className="text-sm font-semibold text-foreground mb-4">Type Scale</h3>
             <Card variant="default" padding="md">
               <div className="space-y-6">
-                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
-                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">h1 / 3rem</span>
+                <div className="flex items-baseline gap-4 border-b border-border pb-4">
+                  <span className="text-xs font-mono text-muted-foreground w-24 shrink-0">h1 / 3rem</span>
                   <h1 className="text-5xl font-bold text-foreground">Heading One</h1>
                 </div>
-                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
-                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">h2 / 2.25rem</span>
+                <div className="flex items-baseline gap-4 border-b border-border pb-4">
+                  <span className="text-xs font-mono text-muted-foreground w-24 shrink-0">h2 / 2.25rem</span>
                   <h2 className="text-4xl font-bold text-foreground">Heading Two</h2>
                 </div>
-                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
-                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">h3 / 1.5rem</span>
+                <div className="flex items-baseline gap-4 border-b border-border pb-4">
+                  <span className="text-xs font-mono text-muted-foreground w-24 shrink-0">h3 / 1.5rem</span>
                   <h3 className="text-2xl font-semibold text-foreground">Heading Three</h3>
                 </div>
-                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
-                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">h4 / 1.25rem</span>
+                <div className="flex items-baseline gap-4 border-b border-border pb-4">
+                  <span className="text-xs font-mono text-muted-foreground w-24 shrink-0">h4 / 1.25rem</span>
                   <h4 className="text-xl font-semibold text-foreground">Heading Four</h4>
                 </div>
-                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
-                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">h5 / 1.125rem</span>
+                <div className="flex items-baseline gap-4 border-b border-border pb-4">
+                  <span className="text-xs font-mono text-muted-foreground w-24 shrink-0">h5 / 1.125rem</span>
                   <h5 className="text-lg font-medium text-foreground">Heading Five</h5>
                 </div>
-                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
-                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">h6 / 1rem</span>
+                <div className="flex items-baseline gap-4 border-b border-border pb-4">
+                  <span className="text-xs font-mono text-muted-foreground w-24 shrink-0">h6 / 1rem</span>
                   <h6 className="text-base font-medium text-foreground">Heading Six</h6>
                 </div>
-                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
-                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">body / 0.875rem</span>
+                <div className="flex items-baseline gap-4 border-b border-border pb-4">
+                  <span className="text-xs font-mono text-muted-foreground w-24 shrink-0">body / 0.875rem</span>
                   <p className="text-sm text-foreground">Body text used for paragraphs and descriptions across the application.</p>
                 </div>
-                <div className="flex items-baseline gap-4 border-b border-border-default pb-4">
-                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">caption / 0.75rem</span>
-                  <p className="text-xs text-foreground-muted">Caption text used for labels, metadata, and small descriptions.</p>
+                <div className="flex items-baseline gap-4 border-b border-border pb-4">
+                  <span className="text-xs font-mono text-muted-foreground w-24 shrink-0">caption / 0.75rem</span>
+                  <p className="text-xs text-muted-foreground">Caption text used for labels, metadata, and small descriptions.</p>
                 </div>
                 <div className="flex items-baseline gap-4">
-                  <span className="text-xs font-mono text-foreground-muted w-24 shrink-0">overline / 0.625rem</span>
-                  <p className="text-[10px] font-semibold uppercase tracking-widest text-foreground-muted">Overline Text</p>
+                  <span className="text-xs font-mono text-muted-foreground w-24 shrink-0">overline / 0.625rem</span>
+                  <p className="text-[10px] font-semibold uppercase tracking-widest text-muted-foreground">Overline Text</p>
                 </div>
               </div>
             </Card>
@@ -407,7 +407,7 @@ export default function Brandbook() {
             <Card variant="default" padding="md">
               <div className="space-y-6">
                 <div>
-                  <p className="text-xs text-foreground-muted mb-3">Variants</p>
+                  <p className="text-xs text-muted-foreground mb-3">Variants</p>
                   <div className="flex flex-wrap gap-3">
                     <Button variant="primary">Primary</Button>
                     <Button variant="secondary">Secondary</Button>
@@ -416,7 +416,7 @@ export default function Brandbook() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-foreground-muted mb-3">Sizes</p>
+                  <p className="text-xs text-muted-foreground mb-3">Sizes</p>
                   <div className="flex flex-wrap items-center gap-3">
                     <Button variant="primary" size="sm">Small</Button>
                     <Button variant="primary" size="md">Medium</Button>
@@ -424,7 +424,7 @@ export default function Brandbook() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-foreground-muted mb-3">With Icons</p>
+                  <p className="text-xs text-muted-foreground mb-3">With Icons</p>
                   <div className="flex flex-wrap gap-3">
                     <Button variant="primary" icon={<Plus className="w-4 h-4" />}>Add New</Button>
                     <Button variant="secondary" icon={<Download className="w-4 h-4" />}>Export</Button>
@@ -433,7 +433,7 @@ export default function Brandbook() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-foreground-muted mb-3">Loading & Disabled</p>
+                  <p className="text-xs text-muted-foreground mb-3">Loading & Disabled</p>
                   <div className="flex flex-wrap gap-3">
                     <Button variant="primary" loading>Loading</Button>
                     <Button variant="secondary" loading>Loading</Button>
@@ -451,7 +451,7 @@ export default function Brandbook() {
             <Card variant="default" padding="md">
               <div className="space-y-4">
                 <div>
-                  <p className="text-xs text-foreground-muted mb-3">Variants (md)</p>
+                  <p className="text-xs text-muted-foreground mb-3">Variants (md)</p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="default">Default</Badge>
                     <Badge variant="critical">Critical</Badge>
@@ -462,7 +462,7 @@ export default function Brandbook() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-foreground-muted mb-3">Small</p>
+                  <p className="text-xs text-muted-foreground mb-3">Small</p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="default" size="sm">Default</Badge>
                     <Badge variant="critical" size="sm">Critical</Badge>
@@ -471,7 +471,7 @@ export default function Brandbook() {
                   </div>
                 </div>
                 <div>
-                  <p className="text-xs text-foreground-muted mb-3">With Icons & Dismiss</p>
+                  <p className="text-xs text-muted-foreground mb-3">With Icons & Dismiss</p>
                   <div className="flex flex-wrap gap-2">
                     <Badge variant="critical" icon={<AlertCircle className="w-3 h-3" />}>3 Critical</Badge>
                     <Badge variant="warning" icon={<AlertTriangle className="w-3 h-3" />}>12 Warnings</Badge>
@@ -489,15 +489,15 @@ export default function Brandbook() {
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <Card variant="default" padding="md" hoverable>
                 <h4 className="font-semibold text-foreground mb-1">Default Card</h4>
-                <p className="text-sm text-foreground-muted">Standard surface with border. Hoverable with lift effect.</p>
+                <p className="text-sm text-muted-foreground">Standard surface with border. Hoverable with lift effect.</p>
               </Card>
               <Card variant="elevated" padding="md" hoverable>
                 <h4 className="font-semibold text-foreground mb-1">Elevated Card</h4>
-                <p className="text-sm text-foreground-muted">Elevated with shadow for emphasis.</p>
+                <p className="text-sm text-muted-foreground">Elevated with shadow for emphasis.</p>
               </Card>
               <Card variant="outlined" padding="md" hoverable>
                 <h4 className="font-semibold text-foreground mb-1">Outlined Card</h4>
-                <p className="text-sm text-foreground-muted">Transparent background with border.</p>
+                <p className="text-sm text-muted-foreground">Transparent background with border.</p>
               </Card>
             </div>
           </div>
@@ -542,7 +542,7 @@ export default function Brandbook() {
                 activeTab={exampleTab}
                 onChange={setExampleTab}
               />
-              <div className="mt-4 p-4 rounded-lg bg-surface-hover bg-surface-hover text-sm text-foreground-muted">
+              <div className="mt-4 p-4 rounded-lg bg-zinc-900/50 bg-zinc-900/50 text-sm text-muted-foreground">
                 Content for tab: <span className="font-semibold text-foreground">{exampleTab}</span>
               </div>
             </Card>
@@ -560,7 +560,7 @@ export default function Brandbook() {
                 onClose={() => setExampleModalOpen(false)}
                 title="Example Modal"
               >
-                <p className="text-sm text-foreground-muted mb-4">
+                <p className="text-sm text-muted-foreground mb-4">
                   This is an example modal with backdrop blur and smooth enter/exit animations.
                 </p>
                 <div className="flex justify-end gap-3">
@@ -593,7 +593,7 @@ export default function Brandbook() {
             <h3 className="text-sm font-semibold text-foreground mb-4">Skeletons</h3>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
               <div className="space-y-2">
-                <p className="text-xs text-foreground-muted mb-2">Lines</p>
+                <p className="text-xs text-muted-foreground mb-2">Lines</p>
                 <SkeletonLine />
                 <SkeletonLine className="w-3/4" />
                 <SkeletonLine className="w-1/2" />
@@ -621,7 +621,7 @@ export default function Brandbook() {
         <SectionTitle id="icons">Icons</SectionTitle>
 
         <Card variant="default" padding="md">
-          <p className="text-xs text-foreground-muted mb-4">
+          <p className="text-xs text-muted-foreground mb-4">
             Powered by Lucide React. All icons used in the application:
           </p>
           <div className="grid grid-cols-4 sm:grid-cols-6 md:grid-cols-8 gap-3">
@@ -678,11 +678,11 @@ export default function Brandbook() {
             ].map(({ icon: Icon, name }) => (
               <Tooltip key={name} content={name}>
                 <motion.div
-                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg hover:bg-surface-hover transition-colors cursor-default"
+                  className="flex flex-col items-center gap-1.5 p-3 rounded-lg hover:bg-zinc-900/50 transition-colors cursor-default"
                   whileHover={{ scale: 1.05 }}
                 >
                   <Icon className="w-5 h-5 text-foreground" />
-                  <span className="text-[9px] text-foreground-muted text-center truncate w-full">
+                  <span className="text-[9px] text-muted-foreground text-center truncate w-full">
                     {name}
                   </span>
                 </motion.div>
@@ -712,7 +712,7 @@ export default function Brandbook() {
                   { px: 64, label: '64px / 4rem (16)' },
                 ].map(({ px, label }) => (
                   <div key={px} className="flex items-center gap-4">
-                    <span className="text-xs font-mono text-foreground-muted w-40 shrink-0">{label}</span>
+                    <span className="text-xs font-mono text-muted-foreground w-40 shrink-0">{label}</span>
                     <div className="h-3 rounded-sm gradient-bg" style={{ width: `${px}px` }} />
                   </div>
                 ))}
@@ -737,7 +737,7 @@ export default function Brandbook() {
                       className="w-16 h-16 gradient-bg"
                       style={{ borderRadius: radius }}
                     />
-                    <span className="text-[10px] font-mono text-foreground-muted">
+                    <span className="text-[10px] font-mono text-muted-foreground">
                       {label}
                     </span>
                   </div>
@@ -753,17 +753,17 @@ export default function Brandbook() {
                 {[
                   { shadow: '0 1px 2px rgba(0,0,0,0.05)', label: 'shadow-sm' },
                   { shadow: '0 1px 3px rgba(0,0,0,0.1)', label: 'shadow' },
-                  { shadow: '0 4px 6px rgba(0,0,0,0.1)', label: 'shadow-md' },
-                  { shadow: '0 10px 15px rgba(0,0,0,0.1)', label: 'shadow-lg' },
+                  { shadow: '0 4px 6px rgba(0,0,0,0.1)', label: 'shadow-sm' },
+                  { shadow: '0 10px 15px rgba(0,0,0,0.1)', label: 'shadow-sm' },
                   { shadow: '0 20px 25px rgba(0,0,0,0.1)', label: 'shadow-xl' },
-                  { shadow: '0 25px 50px rgba(0,0,0,0.25)', label: 'shadow-2xl' },
+                  { shadow: '0 25px 50px rgba(0,0,0,0.25)', label: 'shadow-md' },
                 ].map(({ shadow, label }) => (
                   <div key={label} className="flex flex-col items-center gap-2">
                     <div
-                      className="w-20 h-20 rounded-xl bg-surface-card border border-border-default"
+                      className="w-20 h-20 rounded-xl bg-card border border-border"
                       style={{ boxShadow: shadow }}
                     />
-                    <span className="text-[10px] font-mono text-foreground-muted">
+                    <span className="text-[10px] font-mono text-muted-foreground">
                       {label}
                     </span>
                   </div>
@@ -840,7 +840,7 @@ export default function Brandbook() {
             <AnimationDemo title="Loading Spinner" animationKey="spinner">
               {() => (
                 <motion.div
-                  className="w-12 h-12 rounded-full border-3 border-border-default border-t-brand-primary"
+                  className="w-12 h-12 rounded-full border-3 border-border border-t-primary"
                   animate={{ rotate: 360 }}
                   transition={{ duration: 1, repeat: Infinity, ease: 'linear' }}
                   style={{ borderWidth: 3 }}
@@ -877,8 +877,8 @@ export default function Brandbook() {
         <SectionTitle id="darklight">Dark / Light Mode</SectionTitle>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-          <div className="rounded-xl overflow-hidden border border-border-default">
-            <div className="px-4 py-2 bg-gray-800 text-white text-xs font-semibold">Dark Mode</div>
+          <div className="rounded-xl overflow-hidden border border-border">
+            <div className="px-4 py-2 bg-zinc-800 text-foreground text-xs font-semibold">Dark Mode</div>
             <div className="bg-[#0A0A0F] p-6 space-y-3">
               <div className="bg-[#12121A] border border-[#1E1E2E] rounded-xl p-4">
                 <h4 className="text-[#FAFAFA] font-semibold mb-1">Card Title</h4>
@@ -889,16 +889,16 @@ export default function Brandbook() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <button className="px-4 py-2 text-sm font-medium rounded-lg text-white gradient-bg">Primary</button>
+                <button className="px-4 py-2 text-sm font-medium rounded-lg text-foreground gradient-bg">Primary</button>
                 <button className="px-4 py-2 text-sm font-medium rounded-lg bg-[#12121A] border border-[#1E1E2E] text-[#FAFAFA]">Secondary</button>
               </div>
             </div>
           </div>
 
-          <div className="rounded-xl overflow-hidden border border-border-default">
-            <div className="px-4 py-2 bg-gray-100 text-gray-800 text-xs font-semibold">Light Mode</div>
+          <div className="rounded-xl overflow-hidden border border-border">
+            <div className="px-4 py-2 bg-zinc-100 text-zinc-800 text-xs font-semibold">Light Mode</div>
             <div className="bg-[#FAFAFA] p-6 space-y-3">
-              <div className="bg-white border border-[#E5E7EB] rounded-xl p-4">
+              <div className="bg-background border border-[#E5E7EB] rounded-xl p-4">
                 <h4 className="text-[#111827] font-semibold mb-1">Card Title</h4>
                 <p className="text-[#6B7280] text-sm">Card description text</p>
                 <div className="flex gap-2 mt-3">
@@ -907,8 +907,8 @@ export default function Brandbook() {
                 </div>
               </div>
               <div className="flex gap-2">
-                <button className="px-4 py-2 text-sm font-medium rounded-lg text-white gradient-bg">Primary</button>
-                <button className="px-4 py-2 text-sm font-medium rounded-lg bg-white border border-[#E5E7EB] text-[#111827]">Secondary</button>
+                <button className="px-4 py-2 text-sm font-medium rounded-lg text-foreground gradient-bg">Primary</button>
+                <button className="px-4 py-2 text-sm font-medium rounded-lg bg-background border border-[#E5E7EB] text-[#111827]">Secondary</button>
               </div>
             </div>
           </div>
@@ -919,8 +919,8 @@ export default function Brandbook() {
 
         <div className="space-y-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div className="rounded-xl overflow-hidden border border-border-default">
-              <div className="px-4 py-2 text-xs font-semibold text-foreground-muted bg-surface-hover bg-surface-hover">
+            <div className="rounded-xl overflow-hidden border border-border">
+              <div className="px-4 py-2 text-xs font-semibold text-muted-foreground bg-zinc-900/50 bg-zinc-900/50">
                 On Dark Background
               </div>
               <div className="bg-[#0A0A0F] p-8 flex flex-col items-center gap-6">
@@ -929,11 +929,11 @@ export default function Brandbook() {
                 <LogoDisplay size="sm" bgDark />
               </div>
             </div>
-            <div className="rounded-xl overflow-hidden border border-border-default">
-              <div className="px-4 py-2 text-xs font-semibold text-foreground-muted bg-surface-hover bg-surface-hover">
+            <div className="rounded-xl overflow-hidden border border-border">
+              <div className="px-4 py-2 text-xs font-semibold text-muted-foreground bg-zinc-900/50 bg-zinc-900/50">
                 On Light Background
               </div>
-              <div className="bg-white p-8 flex flex-col items-center gap-6">
+              <div className="bg-background p-8 flex flex-col items-center gap-6">
                 <LogoDisplay size="lg" bgDark={false} />
                 <LogoDisplay size="md" bgDark={false} />
                 <LogoDisplay size="sm" bgDark={false} />
@@ -943,7 +943,7 @@ export default function Brandbook() {
 
           <Card variant="default" padding="md">
             <h4 className="text-sm font-semibold text-foreground mb-3">Logo Construction</h4>
-            <p className="text-sm text-foreground-muted">
+            <p className="text-sm text-muted-foreground">
               The UniAudit logo is text-based. "Uni" uses Inter Regular (400) weight, and "Audit" uses Inter Bold (700).
               A small gradient accent dot appears after the text. The gradient icon uses a rounded square with the GraduationCap icon.
             </p>
@@ -968,9 +968,9 @@ function LogoDisplay({ size, bgDark }: { size: 'sm' | 'md' | 'lg'; bgDark: boole
         className={cn('rounded-lg gradient-bg flex items-center justify-center')}
         style={{ width: `${s.icon * 4}px`, height: `${s.icon * 4}px` }}
       >
-        <GraduationCap className="text-white" style={{ width: `${s.iconInner * 4}px`, height: `${s.iconInner * 4}px` }} />
+        <GraduationCap className="text-foreground" style={{ width: `${s.iconInner * 4}px`, height: `${s.iconInner * 4}px` }} />
       </div>
-      <span className={cn(s.text, bgDark ? 'text-white' : 'text-gray-900')}>
+      <span className={cn(s.text, bgDark ? 'text-foreground' : 'text-zinc-900')}>
         <span className="font-normal">Uni</span>
         <span className="font-bold">Audit</span>
       </span>
@@ -1001,13 +1001,13 @@ function AnimationDemo({
   return (
     <Card variant="default" padding="md">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           {title}
         </p>
         {animationKey !== 'hover' && animationKey !== 'spinner' && animationKey !== 'gradient-text' && (
           <button
             onClick={toggle}
-            className="text-xs text-brand-primary hover:underline"
+            className="text-xs text-primary hover:underline"
           >
             Replay
           </button>
@@ -1032,10 +1032,10 @@ function StaggerDemo() {
   return (
     <Card variant="default" padding="md">
       <div className="flex items-center justify-between mb-4">
-        <p className="text-xs font-semibold uppercase tracking-wider text-foreground-muted">
+        <p className="text-xs font-semibold uppercase tracking-wider text-muted-foreground">
           Stagger Children
         </p>
-        <button onClick={replay} className="text-xs text-brand-primary hover:underline">
+        <button onClick={replay} className="text-xs text-primary hover:underline">
           Replay
         </button>
       </div>
@@ -1054,7 +1054,7 @@ function StaggerDemo() {
             {items.map((item) => (
               <motion.div
                 key={item}
-                className="px-4 py-2 rounded-lg border border-border-default bg-surface-card text-sm text-foreground"
+                className="px-4 py-2 rounded-lg border border-border bg-card text-sm text-foreground"
                 variants={{
                   hidden: { opacity: 0, y: 20, scale: 0.8 },
                   visible: { opacity: 1, y: 0, scale: 1 },
@@ -1085,15 +1085,15 @@ function PageTransitionDemo() {
             className={cn(
               'px-3 py-1 text-xs font-medium rounded-full transition-all',
               page === i
-                ? 'bg-brand-primary/10 text-brand-primary'
-                : 'text-foreground-muted hover:bg-surface-hover'
+                ? 'bg-primary/10 text-primary'
+                : 'text-muted-foreground hover:bg-zinc-900/50'
             )}
           >
             {p}
           </button>
         ))}
       </div>
-      <div className="h-32 rounded-lg border border-border-default overflow-hidden relative">
+      <div className="h-32 rounded-lg border border-border overflow-hidden relative">
         <AnimatePresence mode="wait">
           <motion.div
             key={page}
@@ -1112,7 +1112,7 @@ function PageTransitionDemo() {
                 ))}
               </div>
             </div>
-            <p className="text-xs text-foreground-muted mt-3">
+            <p className="text-xs text-muted-foreground mt-3">
               {pages[page]} page content
             </p>
           </motion.div>

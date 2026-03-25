@@ -88,7 +88,7 @@ export default function PageReport() {
             href={page.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-border-default text-foreground hover:bg-surface-hover transition-all"
+            className="inline-flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg border border-border text-foreground hover:bg-zinc-900/50 transition-all"
           >
             <ExternalLink className="w-4 h-4" />
             Open Page
@@ -177,10 +177,10 @@ export default function PageReport() {
         {page.ai_summary && (
           <Card variant="default" padding="md">
             <h3 className="text-sm font-semibold text-foreground mb-3 flex items-center gap-2">
-              <Type className="w-4 h-4 text-brand-primary" />
+              <Type className="w-4 h-4 text-primary" />
               AI Summary
             </h3>
-            <p className="text-sm text-foreground-muted leading-relaxed">
+            <p className="text-sm text-muted-foreground leading-relaxed">
               {page.ai_summary}
             </p>
           </Card>
@@ -189,7 +189,7 @@ export default function PageReport() {
         {page.ai_improvements.length > 0 && (
           <Card variant="default" padding="md">
             <h3 className="text-sm font-semibold text-foreground mb-4 flex items-center gap-2">
-              <Lightbulb className="w-4 h-4 text-brand-primary" />
+              <Lightbulb className="w-4 h-4 text-primary" />
               AI Improvements ({page.ai_improvements.length})
             </h3>
 
@@ -230,7 +230,7 @@ export default function PageReport() {
                         ? 'font-bold text-foreground'
                         : heading.level === 2
                         ? 'font-semibold text-foreground'
-                        : 'text-foreground-muted'
+                        : 'text-muted-foreground'
                     )}
                   >
                     {heading.text}
@@ -255,11 +255,11 @@ export default function PageReport() {
                   animate={{ opacity: 1 }}
                   transition={{ delay: i * 0.1 }}
                 >
-                  <span className="px-3 py-1.5 text-xs font-medium rounded-lg bg-surface-hover bg-surface-hover text-foreground border border-border-default truncate max-w-[200px]">
+                  <span className="px-3 py-1.5 text-xs font-medium rounded-lg bg-zinc-900/50 bg-zinc-900/50 text-foreground border border-border truncate max-w-[200px]">
                     {step}
                   </span>
                   {i < page.discovery_path.length - 1 && (
-                    <ArrowRight className="w-4 h-4 text-foreground-muted shrink-0" />
+                    <ArrowRight className="w-4 h-4 text-muted-foreground shrink-0" />
                   )}
                 </motion.div>
               ))}
@@ -275,16 +275,16 @@ export default function PageReport() {
             <div className="space-y-4">
               {Object.entries(groupedLinks).map(([location, links]) => (
                 <div key={location}>
-                  <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-2">
+                  <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
                     {location} ({links.length})
                   </h4>
                   <div className="space-y-1">
                     {links.map((link, i) => (
                       <div
                         key={i}
-                        className="flex items-center gap-2 py-1 px-2 rounded-md hover:bg-surface-hover transition-colors"
+                        className="flex items-center gap-2 py-1 px-2 rounded-md hover:bg-zinc-900/50 transition-colors"
                       >
-                        <Link2 className="w-3.5 h-3.5 text-foreground-muted shrink-0" />
+                        <Link2 className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
                         <span className="text-sm text-foreground truncate">
                           {link.text || 'No text'}
                         </span>
@@ -292,7 +292,7 @@ export default function PageReport() {
                           href={link.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          className="text-xs text-brand-primary hover:underline truncate ml-auto shrink-0"
+                          className="text-xs text-primary hover:underline truncate ml-auto shrink-0"
                         >
                           {link.url.length > 60 ? link.url.slice(0, 60) + '...' : link.url}
                         </a>
@@ -323,10 +323,10 @@ function MetaCard({
   color?: string;
 }) {
   return (
-    <div className="flex items-center gap-3 p-3 rounded-xl border border-border-default bg-surface-card">
-      <span className="text-foreground-muted">{icon}</span>
+    <div className="flex items-center gap-3 p-3 rounded-xl border border-border bg-card">
+      <span className="text-muted-foreground">{icon}</span>
       <div className="min-w-0">
-        <p className="text-[10px] text-foreground-muted">{label}</p>
+        <p className="text-[10px] text-muted-foreground">{label}</p>
         <p
           className="text-sm font-semibold truncate"
           style={color ? { color } : undefined}
@@ -334,7 +334,7 @@ function MetaCard({
           {value}
         </p>
         {sub && (
-          <p className="text-[10px] text-foreground-muted truncate">
+          <p className="text-[10px] text-muted-foreground truncate">
             {sub}
           </p>
         )}
@@ -352,7 +352,7 @@ function ImprovementGroup({
 }) {
   return (
     <div className="mb-4 last:mb-0">
-      <h4 className="text-xs font-semibold uppercase tracking-wider text-foreground-muted mb-2">
+      <h4 className="text-xs font-semibold uppercase tracking-wider text-muted-foreground mb-2">
         {title} ({improvements.length})
       </h4>
       <div className="space-y-2">
@@ -361,7 +361,7 @@ function ImprovementGroup({
           return (
             <motion.div
               key={i}
-              className="flex gap-3 p-3 rounded-lg border border-border-default"
+              className="flex gap-3 p-3 rounded-lg border border-border"
               initial={{ opacity: 0, y: 5 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: i * 0.05 }}
@@ -384,7 +384,7 @@ function ImprovementGroup({
                   {imp.description}
                 </p>
                 {imp.impact && (
-                  <p className="text-xs text-foreground-muted mt-1">
+                  <p className="text-xs text-muted-foreground mt-1">
                     Impact: {imp.impact}
                   </p>
                 )}

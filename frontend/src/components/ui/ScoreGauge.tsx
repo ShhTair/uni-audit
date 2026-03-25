@@ -94,7 +94,7 @@ export default function ScoreGauge({
               {label}
             </p>
           )}
-          <p className={cn('text-foreground-muted', config.labelSize)}>
+          <p className={cn('text-muted-foreground', config.labelSize)}>
             {getScoreLabel(score)}
           </p>
         </div>

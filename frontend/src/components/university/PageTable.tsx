@@ -34,15 +34,15 @@ export default function PageTable({
   const navigate = useNavigate();
 
   return (
-    <div className={cn('overflow-x-auto rounded-xl border border-border-default', className)}>
+    <div className={cn('overflow-x-auto rounded-xl border border-border', className)}>
       <table className="w-full text-sm">
         <thead>
-          <tr className="border-b border-border-default bg-surface-hover/50 bg-surface-hover/50">
+          <tr className="border-b border-border bg-zinc-900/50/50 bg-zinc-900/50/50">
             {columns.map((col) => (
               <th
                 key={col.key}
                 className={cn(
-                  'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-foreground-muted',
+                  'px-4 py-3 text-left text-xs font-semibold uppercase tracking-wider text-muted-foreground',
                   col.sortable && 'cursor-pointer hover:text-foreground select-none'
                 )}
                 onClick={() => col.sortable && onSort(col.key)}
@@ -54,7 +54,7 @@ export default function PageTable({
                       className={cn(
                         'w-3.5 h-3.5',
                         sortBy === col.key
-                          ? 'text-brand-primary'
+                          ? 'text-primary'
                           : 'opacity-30'
                       )}
                     />
@@ -68,7 +68,7 @@ export default function PageTable({
           {pages.map((page, idx) => (
             <motion.tr
               key={page.id}
-              className="hover:bg-surface-hover cursor-pointer transition-colors"
+              className="hover:bg-zinc-900/50 cursor-pointer transition-colors"
               onClick={() =>
                 navigate(`/university/${universityId}/page/${page.id}`)
               }
@@ -86,12 +86,12 @@ export default function PageTable({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="text-foreground-muted hover:text-brand-primary transition-colors"
+                    className="text-muted-foreground hover:text-primary transition-colors"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
-                <p className="text-xs text-foreground-muted mt-0.5 truncate max-w-xs">
+                <p className="text-xs text-muted-foreground mt-0.5 truncate max-w-xs">
                   {page.url}
                 </p>
               </td>
@@ -106,7 +106,7 @@ export default function PageTable({
                   {page.category}
                 </span>
               </td>
-              <td className="px-4 py-3 text-foreground-muted">
+              <td className="px-4 py-3 text-muted-foreground">
                 {page.depth}
               </td>
               <td className="px-4 py-3">
@@ -140,7 +140,7 @@ export default function PageTable({
                 </div>
               </td>
               <td className="px-4 py-3">
-                <span className="text-xs text-foreground-muted">
+                <span className="text-xs text-muted-foreground">
                   {page.content_tags.length}
                 </span>
               </td>
@@ -149,7 +149,7 @@ export default function PageTable({
         </tbody>
       </table>
       {pages.length === 0 && (
-        <div className="py-12 text-center text-sm text-foreground-muted">
+        <div className="py-12 text-center text-sm text-muted-foreground">
           No pages found matching your criteria.
         </div>
       )}

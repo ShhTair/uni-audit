@@ -24,7 +24,7 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
         )}
         <div className="relative">
           {icon && (
-            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-foreground-muted">
+            <span className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground">
               {icon}
             </span>
           )}
@@ -32,12 +32,12 @@ const Input = forwardRef<HTMLInputElement, InputProps>(
             ref={ref}
             id={inputId}
             className={cn(
-              'w-full rounded-lg border bg-surface-card text-foreground placeholder-foreground-muted transition-all',
-              'focus:outline-none focus:ring-2 focus:ring-brand-primary/50 focus:border-brand-primary',
+              'w-full rounded-lg border bg-card text-foreground placeholder-foreground-muted transition-all',
+              'focus:outline-none focus:ring-2 focus:ring-primary/50 focus:border-primary',
               'disabled:opacity-50 disabled:cursor-not-allowed',
               error
                 ? 'border-red-500 focus:ring-red-500/50'
-                : 'border-border-default',
+                : 'border-border',
               icon ? 'pl-10 pr-3 py-2' : 'px-3 py-2',
               'text-sm',
               className

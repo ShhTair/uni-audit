@@ -257,18 +257,18 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
         </h3>
         <div className="overflow-x-auto max-h-[280px] overflow-y-auto">
           <table className="w-full text-sm">
-            <thead className="sticky top-0 bg-surface-card">
-              <tr className="border-b border-border-default">
-                <th className="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider text-foreground-muted">
+            <thead className="sticky top-0 bg-card">
+              <tr className="border-b border-border">
+                <th className="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Country
                 </th>
-                <th className="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider text-foreground-muted">
+                <th className="text-left py-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Language
                 </th>
-                <th className="text-right py-2 px-3 text-xs font-semibold uppercase tracking-wider text-foreground-muted">
+                <th className="text-right py-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Pages
                 </th>
-                <th className="text-right py-2 px-3 text-xs font-semibold uppercase tracking-wider text-foreground-muted">
+                <th className="text-right py-2 px-3 text-xs font-semibold uppercase tracking-wider text-muted-foreground">
                   Coverage
                 </th>
               </tr>
@@ -279,7 +279,7 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
                   <td className="py-2 px-3 text-foreground">
                     {row.country}
                   </td>
-                  <td className="py-2 px-3 text-foreground-muted">
+                  <td className="py-2 px-3 text-muted-foreground">
                     {row.language}
                   </td>
                   <td className="py-2 px-3 text-right text-foreground">
@@ -293,7 +293,7 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
                           style={{ width: `${row.coverage_score}%` }}
                         />
                       </div>
-                      <span className="text-xs text-foreground-muted w-8 text-right">
+                      <span className="text-xs text-muted-foreground w-8 text-right">
                         {row.coverage_score}%
                       </span>
                     </div>
@@ -303,7 +303,7 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
             </tbody>
           </table>
           {metrics.country_coverage.length === 0 && (
-            <p className="py-8 text-center text-sm text-foreground-muted">
+            <p className="py-8 text-center text-sm text-muted-foreground">
               No country data available.
             </p>
           )}
@@ -321,21 +321,21 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
             return (
               <motion.span
                 key={item.tag}
-                className="px-3 py-1 rounded-full text-xs font-medium border border-border-default text-foreground"
+                className="px-3 py-1 rounded-full text-xs font-medium border border-border text-foreground"
                 style={{ fontSize: `${scale * 12}px` }}
                 initial={{ opacity: 0, scale: 0.8 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: index * 0.03 }}
               >
                 {item.tag}
-                <span className="ml-1 text-foreground-muted">
+                <span className="ml-1 text-muted-foreground">
                   ({item.count})
                 </span>
               </motion.span>
             );
           })}
           {tagData.length === 0 && (
-            <p className="text-sm text-foreground-muted">
+            <p className="text-sm text-muted-foreground">
               No tag data available.
             </p>
           )}
@@ -346,7 +346,7 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
         <h3 className="text-sm font-semibold text-foreground mb-4">
           Information Depth
         </h3>
-        <p className="text-xs text-foreground-muted mb-3">
+        <p className="text-xs text-muted-foreground mb-3">
           How many clicks to reach key information types
         </p>
         <ResponsiveContainer width="100%" height={250}>
@@ -408,13 +408,13 @@ export default function MetricsCharts({ metrics, className }: MetricsChartsProps
                   transition={{ delay: index * 0.05, duration: 0.6 }}
                 />
               </div>
-              <span className="text-xs font-medium text-foreground-muted w-10 text-right">
+              <span className="text-xs font-medium text-muted-foreground w-10 text-right">
                 {Math.round(item.score)}%
               </span>
             </motion.div>
           ))}
           {completenessData.length === 0 && (
-            <p className="text-sm text-foreground-muted text-center py-6">
+            <p className="text-sm text-muted-foreground text-center py-6">
               No completeness data available.
             </p>
           )}

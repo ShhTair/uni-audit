@@ -39,14 +39,14 @@ export default function Sidebar() {
   return (
     <motion.aside
       className={cn(
-        'h-screen sticky top-0 flex flex-col border-r border-border-default bg-surface-card z-40',
+        'h-screen sticky top-0 flex flex-col border-r border-border bg-card z-40',
         'transition-all duration-300'
       )}
       animate={{ width: collapsed ? 64 : 256 }}
     >
-      <div className="flex items-center gap-3 px-4 h-16 border-b border-border-default shrink-0">
+      <div className="flex items-center gap-3 px-4 h-16 border-b border-border shrink-0">
         <div className="w-8 h-8 rounded-lg gradient-bg flex items-center justify-center shrink-0">
-          <GraduationCap className="w-4 h-4 text-white" />
+          <GraduationCap className="w-4 h-4 text-foreground" />
         </div>
         <AnimatePresence>
           {!collapsed && (
@@ -76,8 +76,8 @@ export default function Sidebar() {
                 className={cn(
                   'flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-all relative',
                   active
-                    ? 'text-brand-primary bg-brand-primary/10'
-                    : 'text-foreground-muted hover:text-foreground hover:bg-surface-hover'
+                    ? 'text-primary bg-primary/10'
+                    : 'text-muted-foreground hover:text-foreground hover:bg-zinc-900/50'
                 )}
               >
                 {active && (
@@ -117,7 +117,7 @@ export default function Sidebar() {
           <div className="mt-6">
             <button
               onClick={() => setUniListOpen(!uniListOpen)}
-              className="flex items-center justify-between w-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-foreground-muted hover:text-foreground transition-colors"
+              className="flex items-center justify-between w-full px-3 py-1.5 text-xs font-semibold uppercase tracking-wider text-muted-foreground hover:text-foreground transition-colors"
             >
               Universities
               <motion.div
@@ -145,8 +145,8 @@ export default function Sidebar() {
                         className={cn(
                           'flex items-center gap-2.5 px-3 py-1.5 rounded-lg text-sm transition-all',
                           active
-                            ? 'text-brand-primary bg-brand-primary/10 font-medium'
-                            : 'text-foreground-muted hover:text-foreground hover:bg-surface-hover'
+                            ? 'text-primary bg-primary/10 font-medium'
+                            : 'text-muted-foreground hover:text-foreground hover:bg-zinc-900/50'
                         )}
                       >
                         <Globe className="w-4 h-4 shrink-0" />
@@ -161,10 +161,10 @@ export default function Sidebar() {
         )}
       </nav>
 
-      <div className="border-t border-border-default p-2 space-y-1 shrink-0">
+      <div className="border-t border-border p-2 space-y-1 shrink-0">
         <button
           onClick={toggleTheme}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-foreground-muted hover:text-foreground hover:bg-surface-hover transition-all"
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-zinc-900/50 transition-all"
         >
           {theme === 'dark' ? (
             <Sun className="w-5 h-5 shrink-0" />
@@ -186,7 +186,7 @@ export default function Sidebar() {
 
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-foreground-muted hover:text-foreground hover:bg-surface-hover transition-all"
+          className="flex items-center gap-3 w-full px-3 py-2 rounded-lg text-sm text-muted-foreground hover:text-foreground hover:bg-zinc-900/50 transition-all"
         >
           {collapsed ? (
             <ChevronRight className="w-5 h-5 shrink-0" />

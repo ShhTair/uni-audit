@@ -58,7 +58,7 @@ export default function Modal({
           />
           <motion.div
             className={cn(
-              'relative w-full mx-4 bg-surface-card border border-border-default rounded-xl shadow-2xl',
+              'relative w-full mx-4 bg-card border border-border rounded-xl shadow-md',
               sizeClasses[size],
               className
             )}
@@ -68,13 +68,13 @@ export default function Modal({
             transition={{ type: 'spring', stiffness: 400, damping: 30 }}
           >
             {title && (
-              <div className="flex items-center justify-between px-6 py-4 border-b border-border-default">
+              <div className="flex items-center justify-between px-6 py-4 border-b border-border">
                 <h2 className="text-lg font-semibold text-foreground">
                   {title}
                 </h2>
                 <button
                   onClick={onClose}
-                  className="p-1 rounded-lg text-foreground-muted hover:bg-surface-hover transition-colors"
+                  className="p-1 rounded-lg text-muted-foreground hover:bg-zinc-900/50 transition-colors"
                 >
                   <X className="w-5 h-5" />
                 </button>

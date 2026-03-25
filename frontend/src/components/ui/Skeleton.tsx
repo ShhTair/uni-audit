@@ -57,7 +57,7 @@ export function SkeletonTable({ rows = 5, cols = 4 }: { rows?: number; cols?: nu
   return (
     <div className="glass-card rounded-cf-xl overflow-hidden">
       {/* Header */}
-      <div className="flex gap-4 px-5 py-3 border-b border-border-default">
+      <div className="flex gap-4 px-5 py-3 border-b border-border">
         {Array.from({ length: cols }).map((_, i) => (
           <Skeleton key={i} className="h-3 flex-1" />
         ))}

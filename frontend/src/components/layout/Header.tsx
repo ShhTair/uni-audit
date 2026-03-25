@@ -26,7 +26,7 @@ export default function Header({
   return (
     <header className={cn('mb-6', className)}>
       {breadcrumbs && breadcrumbs.length > 0 && (
-        <nav className="flex items-center gap-1.5 text-sm text-foreground-muted mb-2">
+        <nav className="flex items-center gap-1.5 text-sm text-muted-foreground mb-2">
           <Link
             to="/"
             className="hover:text-foreground transition-colors"
@@ -58,7 +58,7 @@ export default function Header({
             {title}
           </h1>
           {subtitle && (
-            <p className="text-sm text-foreground-muted mt-1">
+            <p className="text-sm text-muted-foreground mt-1">
               {subtitle}
             </p>
           )}
