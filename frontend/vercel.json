@@ -2,7 +2,7 @@
   "rewrites": [
     {
       "source": "/api/:match*",
-      "destination": "http://20.240.202.14:8000/api/:match*"
+      "destination": "http://20.240.202.14/uni-api/:match*"
     },
     {
       "source": "/(.*)",
