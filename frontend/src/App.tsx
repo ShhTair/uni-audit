@@ -12,13 +12,15 @@ export default function App() {
   return (
     <AnimatePresence mode="wait">
       <Routes>
+        {/* Standalone full-page routes (have their own header/nav) */}
+        <Route path="/brandbook" element={<Brandbook />} />
+        <Route path="/playground" element={<PlaygroundPage />} />
+        {/* App shell routes — wrapped in Layout (sidebar + main) */}
         <Route element={<Layout />}>
           <Route path="/" element={<Dashboard />} />
           <Route path="/university/:id" element={<UniversityDetail />} />
           <Route path="/university/:id/guide" element={<GuideGenerator />} />
           <Route path="/university/:id/page/:pageId" element={<PageReport />} />
-          <Route path="/brandbook" element={<Brandbook />} />
-          <Route path="/playground" element={<PlaygroundPage />} />
         </Route>
       </Routes>
     </AnimatePresence>
