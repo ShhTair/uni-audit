@@ -1,138 +1,72 @@
-# UniAudit — University Admission Website Intelligence Platform
+# UniAudit Agent
 
-AI-powered platform that analyzes university admission websites and generates comprehensive audit reports, enabling targeted consulting outreach.
+A comprehensive web-scraping and AI-powered analysis tool designed to audit university websites. It focuses on evaluating the availability and quality of information critical to prospective students, such as admissions, tuition fees, and international student support.
 
-## Architecture
+## Architecture & Technology Stack
 
-```
-uni-audit/
-├── backend/          # Python FastAPI + Playwright crawler + Azure OpenAI
-├── frontend/         # React + Vite + Tailwind + Framer Motion
-├── outreach/         # Cold outreach automation toolkit
-└── .github/          # CI/CD workflows
-```
+The application is split into two main components:
 
-## Tech Stack
+### 1. Backend (Python / FastAPI)
+- **Data Collection:** Uses Playwright (via `playwright-stealth`) to crawl university websites, bypassing bot protection (like Cloudflare and GFW).
+- **Data Analysis:** Integrates with Azure OpenAI (`gpt-5.4-nano`) to analyze the scraped content, looking for missing information, structural issues, and calculating a score based on a proprietary rubric.
+- **Database:** MongoDB Atlas is used to store university profiles, raw page data, and generated reports.
+- **API:** Exposes a FastAPI application that serves the processed data to the frontend.
 
-| Layer | Technology |
-|-------|-----------|
-| Frontend | React 18, Vite, Tailwind CSS, Framer Motion, React Flow |
-| Backend | Python 3.12, FastAPI, Playwright, Motor (async MongoDB) |
-| Database | MongoDB Atlas |
-| AI | Azure OpenAI (GPT-5.4 Nano) via Responses API |
-| Frontend Hosting | Vercel (auto-deploy from GitHub) |
-| Backend Hosting | VM (systemd service or Docker) |
+### 2. Frontend (React / Vite / Vercel)
+- **Framework:** React with Vite.
+- **Styling:** Tailwind CSS with a custom design system based on `shadcn/ui` (specifically ported from the `Clawforge` project, featuring a dark, premium aesthetic).
+- **Data Fetching:** `@tanstack/react-query` for state management and caching.
+- **Deployment:** Hosted on Vercel.
 
-## Quick Start
+## Network & Deployment Architecture
+
+To ensure the Vercel frontend can communicate with the Azure-hosted backend:
+1. The backend runs on port `8000`.
+2. An `nginx` reverse proxy listens on port `80` (HTTP) and forwards requests to `localhost:8000/api/`.
+3. The Azure Network Security Group (NSG) allows inbound traffic on port `80`.
+4. Vercel's `vercel.json` rewrites requests from `/api/*` to `http://<AZURE_VM_IP>/uni-api/*`.
+
+## Local Development Setup
 
 ### Backend
-
-```bash
-cd backend
-python3.12 -m venv venv
-source venv/bin/activate
-pip install -r requirements.txt
-python -m playwright install chromium
-
-# Copy and fill in .env
-cp ../.env.example .env
-
-./start-dev.sh  # hot reload
-# or
-./start.sh      # production
-```
+1. Create a `.env.local` file with the required credentials:
+   ```env
+   MONGODB_URI="..."
+   AZURE_OPENAI_ENDPOINT="..."
+   AZURE_OPENAI_API_KEY="..."
+   AZURE_OPENAI_MODEL="gpt-5.4-nano"
+   ```
+2. Set up a virtual environment and install dependencies:
+   ```bash
+   python3 -m venv venv
+   source venv/bin/activate
+   pip install -r requirements.txt
+   playwright install chromium
+   ```
+3. Run the backend:
+   ```bash
+   bash start-dev.sh
+   ```
 
 ### Frontend
+1. Navigate to the frontend directory:
+   ```bash
+   cd frontend
+   ```
+2. Install dependencies:
+   ```bash
+   npm install
+   ```
+3. Run the development server (uses Vite proxy to forward API requests to `localhost:8000`):
+   ```bash
+   npm run dev
+   ```
 
+## Production Deployment (Vercel)
+
+The frontend is deployed on Vercel. To deploy changes:
 ```bash
 cd frontend
-npm install
-npm run dev     # dev server on :3000
-npm run build   # production build
+vercel --prod --yes
 ```
-
-### Environment Variables
-
-Create `.env` in project root (see `.env` for all keys):
-
-```
-MONGODB_URI=...
-AZURE_OPENAI_ENDPOINT=...
-AZURE_OPENAI_API_KEY=...
-AZURE_OPENAI_MODEL=gpt-5.4-nano
-DATABASE_NAME=uni_audit
-```
-
-## Workflow
-
-1. **Add University** → Dashboard → Add University (enter name, domains, country)
-2. **Start Crawl** → University page → Start Crawl (Playwright-based, respects dynamic content)
-3. **Start Analysis** → After crawl completes → Start Analysis (AI tags each page)
-4. **View Results** → Dashboard → metrics, tree, graph, page-by-page reports
-5. **Generate Guide** → University page → Generate Guide (self-contained HTML + PDF)
-6. **Outreach** → `outreach/` → generate personalized emails from audit data
-
-## Key Features
-
-- **150+ content tags** across admissions, scholarships, majors, deadlines
-- **50+ issue tags** detecting outdated info, vague requirements, missing sections
-- **Multi-domain crawl** with depth tracking from each root
-- **Dynamic content** handled via Playwright (carousels, tabs, lazy loads)
-- **Smart branch pruning** — skips news/alumni/events, focuses on admission
-- **Competitor benchmarking** — scores vs top-200 global and regional averages
-- **Navigation difficulty scoring** — header vs footer vs main content links
-- **Site tree + graph visualization** with filters, depth coloring, category highlighting
-- **Admission Guide Generator** — compiles findings into a beautiful branded guidebook + PDF
-- **Outreach Toolkit** — personalized email sequences with real audit data
-
-## GitHub Actions Secrets Required
-
-For auto-deploy, add these to GitHub repo secrets:
-```
-VERCEL_TOKEN
-VERCEL_ORG_ID
-VERCEL_PROJECT_ID
-VITE_API_URL    # your VM's public IP/URL:8000
-```
-
-## Vercel Setup
-
-1. Go to [vercel.com](https://vercel.com) → Import from GitHub → select `uni-audit`
-2. Set root directory: `frontend`
-3. Build command: `npm run build`
-4. Output directory: `dist`
-5. Add env var: `VITE_API_URL=http://your-backend-url:8000`
-
-## VM Deployment (Backend)
-
-```bash
-# As systemd service
-sudo nano /etc/systemd/system/uni-audit.service
-
-[Unit]
-Description=UniAudit Backend
-After=network.target
-
-[Service]
-User=ubuntu
-WorkingDirectory=/opt/uni-audit/backend
-EnvironmentFile=/opt/uni-audit/.env
-ExecStart=/opt/uni-audit/backend/start.sh
-Restart=on-failure
-
-[Install]
-WantedBy=multi-user.target
-
-sudo systemctl enable uni-audit
-sudo systemctl start uni-audit
-```
-
-## Outreach
-
-See `outreach/README.md` for the complete cold outreach workflow.
-
-```bash
-cd outreach
-python generate_email.py --university-id <ID> --contact-name "John Smith" \
-  --contact-email "admissions@university.edu" --api-url http://localhost:8000
-```
+Note: Ensure `VITE_API_URL` is NOT hardcoded in production to avoid Mixed Content errors. Vercel rewrites handle the API routing.
