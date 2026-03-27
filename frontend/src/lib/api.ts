@@ -13,7 +13,7 @@ import type {
 
 // Hard fix for Mixed Content: Force relative path in production so Vercel Rewrites catch it.
 // If we are in dev, use VITE_API_URL or localhost.
-const API_URL = import.meta.env.VITE_API_URL || "";
+const API_URL = import.meta.env.DEV ? (import.meta.env.VITE_API_URL || "http://localhost:8000") : "";
  
 
 
