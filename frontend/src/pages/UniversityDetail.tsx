@@ -22,6 +22,7 @@ import {
   ChevronLeft,
   ChevronRight,
   BookOpen,
+  Mail,
 } from 'lucide-react';
 import {
   useUniversity,
@@ -47,6 +48,7 @@ import PageTable from '@/components/university/PageTable';
 import SiteTree from '@/components/university/SiteTree';
 import SiteGraph from '@/components/university/SiteGraph';
 import MetricsCharts from '@/components/university/MetricsCharts';
+import OutreachTab from '@/components/university/OutreachTab';
 import {
   countryToEmoji,
   formatDate,
@@ -61,6 +63,7 @@ const tabs = [
   { id: 'tree', label: 'Tree', icon: <GitBranch className="w-4 h-4" /> },
   { id: 'graph', label: 'Graph', icon: <Network className="w-4 h-4" /> },
   { id: 'metrics', label: 'Metrics', icon: <BarChart3 className="w-4 h-4" /> },
+  { id: 'outreach', label: 'Outreach', icon: <Mail className="w-4 h-4" /> },
 ];
 
 export default function UniversityDetail() {
@@ -481,6 +484,21 @@ export default function UniversityDetail() {
                 description="Complete an analysis to see detailed metrics."
               />
             )}
+          </motion.div>
+        )}
+
+        {activeTab === 'outreach' && (
+          <motion.div
+            key="outreach"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <OutreachTab
+              universityId={id!}
+              universityName={university.name}
+              hasAuditData={university.status === 'completed' && !!summary}
+            />
           </motion.div>
         )}
       </AnimatePresence>

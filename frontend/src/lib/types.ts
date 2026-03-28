@@ -197,3 +197,20 @@ export interface Guide {
   word_count: number;
   created_at: string;
 }
+
+export interface OutreachRequest {
+  contact_name: string;
+  contact_title?: string;
+  tone?: 'professional' | 'friendly' | 'consultative';
+}
+
+export interface OutreachResult {
+  university_id: string;
+  university_name: string;
+  contact_name: string;
+  contact_title: string;
+  subject: string;
+  body: string;
+  tone: string;
+  audit_score: number;
+}

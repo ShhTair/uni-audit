@@ -9,6 +9,8 @@ import type {
   PageFilters,
   CreateUniversityPayload,
   Guide,
+  OutreachRequest,
+  OutreachResult,
 } from './types';
 
 // Hard fix for Mixed Content: Force relative path in production so Vercel Rewrites catch it.
@@ -177,5 +179,15 @@ export function useGenerateGuide() {
     onSuccess: (_data, universityId) => {
       queryClient.invalidateQueries({ queryKey: ['guide', universityId] });
     },
+  });
+}
+
+export function useGenerateOutreach() {
+  return useMutation({
+    mutationFn: ({ universityId, req }: { universityId: string; req: OutreachRequest }) =>
+      apiFetch<OutreachResult>(`/api/universities/${universityId}/generate-outreach`, {
+        method: 'POST',
+        body: JSON.stringify(req),
+      }),
   });
 }

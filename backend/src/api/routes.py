@@ -15,6 +15,8 @@ from src.analyzer.metrics import MetricsCalculator
 from src.config import settings
 from src.crawler.crawler import UniversityCrawler
 from src.generator.guide_generator import generate_guide
+from pydantic import BaseModel
+
 from src.models.university import (
     CrawlConfig,
     UniversityCreate,
@@ -24,6 +26,12 @@ from src.models.university import (
     serialize_university,
     university_doc,
 )
+
+
+class OutreachRequest(BaseModel):
+    contact_name: str
+    contact_title: str = "Head of Admissions"
+    tone: str = "professional"  # professional | friendly | consultative
 
 logger = logging.getLogger("uni_audit.api")
 router = APIRouter(prefix="/api")
@@ -423,6 +431,27 @@ async def get_metrics(university_id: str) -> dict[str, Any]:
 # ------------------------------------------------------------------
 
 
+async def _call_openai_text(prompt: str, system: str) -> str:
+    """Simple Azure OpenAI call returning plain text content."""
+    import httpx
+    from src.config import settings
+    url = f"{settings.AZURE_OPENAI_ENDPOINT.rstrip('/')}/openai/v1/chat/completions"
+    headers = {"Content-Type": "application/json", "api-key": settings.AZURE_OPENAI_API_KEY}
+    body = {
+        "model": settings.AZURE_OPENAI_MODEL,
+        "messages": [
+            {"role": "system", "content": system},
+            {"role": "user", "content": prompt},
+        ],
+        "max_completion_tokens": 1500,
+    }
+    async with httpx.AsyncClient(timeout=60) as client:
+        resp = await client.post(url, headers=headers, json=body)
+        resp.raise_for_status()
+        data = resp.json()
+    return data["choices"][0]["message"]["content"]
+
+
 @router.post("/universities/{university_id}/generate-guide")
 async def generate_guide_endpoint(university_id: str) -> dict[str, Any]:
     db = get_db()
@@ -469,3 +498,96 @@ async def get_guide(university_id: str) -> dict[str, Any]:
         guide["generated_at"] = guide["generated_at"].isoformat()
 
     return guide
+
+
+# ------------------------------------------------------------------
+# Outreach Email Generation
+# ------------------------------------------------------------------
+
+
+@router.post("/universities/{university_id}/generate-outreach")
+async def generate_outreach(university_id: str, req: OutreachRequest) -> dict[str, Any]:
+    db = get_db()
+    oid = _validate_object_id(university_id)
+    uni = await db.universities.find_one({"_id": oid})
+    if not uni:
+        raise HTTPException(status_code=404, detail="University not found")
+
+    summary = uni.get("summary")
+    if not summary:
+        raise HTTPException(
+            status_code=400,
+            detail="No audit data available. Run crawl and analysis first.",
+        )
+
+    uni_name = uni["name"]
+    overall_score = summary.get("overall_score", 0)
+    critical_issues = summary.get("critical_issues", 0)
+    warnings = summary.get("warnings", 0)
+    total_pages = summary.get("total_pages", 0)
+    top_issues = summary.get("top_issues", [])[:3]
+
+    issues_text = "\n".join(
+        f"- {issue.get('description', '')} (affects {issue.get('affected_pages', 0)} pages)"
+        for issue in top_issues
+    ) or "- No specific issues listed"
+
+    system_prompt = (
+        "You are an expert digital marketing consultant specialising in higher education. "
+        "Write concise, compelling cold outreach emails to university admissions staff. "
+        "Be specific with data, empathetic, and focus on student impact. "
+        "Never sound like a template — personalise every sentence."
+    )
+
+    user_prompt = f"""Write a cold outreach email to {req.contact_name}, {req.contact_title} at {uni_name}.
+
+AUDIT DATA:
+- Overall website score: {overall_score}/100
+- Critical issues found: {critical_issues}
+- Warnings: {warnings}
+- Pages analysed: {total_pages}
+
+TOP ISSUES IDENTIFIED:
+{issues_text}
+
+TONE: {req.tone}
+
+Write the email in this exact format:
+SUBJECT: [subject line]
+
+[email body — 3-4 short paragraphs, max 200 words total]
+
+Rules:
+- Reference specific numbers from the audit
+- Mention 1-2 concrete issues (not all of them)
+- End with a clear, low-friction CTA (15-min call)
+- No buzzwords like "synergy", "leverage", "cutting-edge"
+- Do NOT include placeholders like [Your Name]"""
+
+    try:
+        content = await _call_openai_text(user_prompt, system_prompt)
+    except Exception as exc:
+        logger.exception("Outreach generation failed for %s: %s", university_id, exc)
+        raise HTTPException(status_code=500, detail=f"AI generation failed: {exc}")
+
+    # Parse subject + body
+    lines = content.strip().split("\n")
+    subject = ""
+    body_lines = []
+    for i, line in enumerate(lines):
+        if line.startswith("SUBJECT:"):
+            subject = line.replace("SUBJECT:", "").strip()
+        else:
+            body_lines.append(line)
+    email_body = "\n".join(body_lines).strip()
+
+    return {
+        "university_id": university_id,
+        "university_name": uni_name,
+        "contact_name": req.contact_name,
+        "contact_title": req.contact_title,
+        "subject": subject,
+        "body": email_body,
+        "tone": req.tone,
+        "audit_score": overall_score,
+    }

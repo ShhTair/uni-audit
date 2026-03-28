@@ -7,22 +7,25 @@ import PageReport from '@/pages/PageReport';
 import Brandbook from '@/pages/Brandbook';
 import PlaygroundPage from "@/pages/PlaygroundPage";
 import GuideGenerator from '@/pages/GuideGenerator';
+import { ErrorBoundary } from '@/components/ui/ErrorBoundary';
 
 export default function App() {
   return (
-    <AnimatePresence mode="wait">
-      <Routes>
-        {/* Standalone full-page routes (have their own header/nav) */}
-        <Route path="/brandbook" element={<Brandbook />} />
-        <Route path="/playground" element={<PlaygroundPage />} />
-        {/* App shell routes — wrapped in Layout (sidebar + main) */}
-        <Route element={<Layout />}>
-          <Route path="/" element={<Dashboard />} />
-          <Route path="/university/:id" element={<UniversityDetail />} />
-          <Route path="/university/:id/guide" element={<GuideGenerator />} />
-          <Route path="/university/:id/page/:pageId" element={<PageReport />} />
-        </Route>
-      </Routes>
-    </AnimatePresence>
+    <ErrorBoundary>
+      <AnimatePresence mode="wait">
+        <Routes>
+          {/* Standalone full-page routes (have their own header/nav) */}
+          <Route path="/brandbook" element={<ErrorBoundary><Brandbook /></ErrorBoundary>} />
+          <Route path="/playground" element={<ErrorBoundary><PlaygroundPage /></ErrorBoundary>} />
+          {/* App shell routes — wrapped in Layout (sidebar + main) */}
+          <Route element={<Layout />}>
+            <Route path="/" element={<ErrorBoundary><Dashboard /></ErrorBoundary>} />
+            <Route path="/university/:id" element={<ErrorBoundary><UniversityDetail /></ErrorBoundary>} />
+            <Route path="/university/:id/guide" element={<ErrorBoundary><GuideGenerator /></ErrorBoundary>} />
+            <Route path="/university/:id/page/:pageId" element={<ErrorBoundary><PageReport /></ErrorBoundary>} />
+          </Route>
+        </Routes>
+      </AnimatePresence>
+    </ErrorBoundary>
   );
 }
