@@ -1,59 +1,175 @@
-# Architecture Review & Best Practices (2026)
+# UniAudit — Architecture
 
-Building an AI-powered scraping SaaS (Software as a Service) is notoriously difficult because it combines three highly unstable domains:
-1. **Web Scraping:** Websites change, bot protection (Cloudflare) blocks requests, and headless browsers (Playwright) consume massive amounts of RAM/CPU.
-2. **LLM/AI APIs:** Third-party APIs (like Azure OpenAI) are subject to rate limits, timeouts, and unpredictable response times.
-3. **Serverless Frontends:** Platforms like Vercel expect APIs to respond within milliseconds. If an API takes 2 minutes to scrape a site and analyze it, the connection will drop (Timeout).
+## Overview
 
-Here is a breakdown of common pitfalls we encountered and how enterprise applications solve them.
+```
+Browser (Vercel HTTPS)
+  └─ /api/* → Vercel Edge Rewrite → HTTP Azure VM :80
+                                         └─ Nginx → FastAPI :8000
+                                                        └─ MongoDB Atlas
+                                                        └─ Azure OpenAI
+```
 
-## 1. The "Timeout & Slow Response" Problem
+Mixed-content problem (HTTPS frontend → HTTP backend) is solved via Vercel Edge rewrites.
+**Do not change `vercel.json` or `api.ts` API_URL logic.**
 
-**The Mistake:** Making synchronous API calls. 
-When the React frontend asks the backend "Analyze University X", the backend starts Playwright, scrapes 50 pages, sends them to OpenAI, and waits for a response. This takes 5+ minutes. Vercel will kill the connection after 10-60 seconds (giving a 504 Gateway Timeout).
+---
 
-**The Best Practice (Asynchronous Workers):**
-*   **Message Queues:** Use a message broker like Redis + Celery, RabbitMQ, or AWS SQS.
-*   **Workflow:**
-    1. Frontend sends a request: `POST /api/analyze { url: "..." }`
-    2. Backend saves a job to the database with status `PENDING` and immediately returns `{ job_id: 123 }`.
-    3. A separate worker process (running in the background on the VM) picks up the job, runs Playwright, calls OpenAI, and updates the DB to `COMPLETED`.
-    4. Frontend polls `GET /api/jobs/123` or uses WebSockets to show a progress bar to the user until it's done.
+## Backend (`backend/src/`)
 
-## 2. The "Mixed Content & CORS" Problem
+```
+main.py                     FastAPI app init, DB connect, CORS
+config.py                   Settings via pydantic-settings (.env)
 
-**The Mistake:** Connecting a secure HTTPS frontend (like `https://uni-audit.vercel.app`) directly to an insecure HTTP backend (like `http://20.240.202.14:8000`).
-Modern browsers block this entirely for security reasons (Mixed Content). If you try to fix it by adding CORS headers to the Python backend, it still won't work because of the HTTP/HTTPS mismatch.
+api/
+  routes.py                 All API endpoints
 
-**The Best Practice (Reverse Proxies & Rewrites):**
-*   **Reverse Proxy:** We installed Nginx on the Azure VM. Nginx listens on port 80 and securely routes traffic to the Python backend on port 8000. 
-*   **Vercel Rewrites:** Instead of the browser making the request directly to the VM, we configured Vercel's Edge Network to make the request on our behalf. `vercel.json` rewrites `/api/*` to our VM's IP. The browser only talks to Vercel (HTTPS), and Vercel talks to our VM.
+models/
+  university.py             Pydantic models + MongoDB serializers
+  tags.py                   Tag definitions + weights
 
-## 3. The "Bot Protection & RAM" Problem
+crawler/
+  crawler.py                Auto mode: Playwright BFS with branch pruning
+  targeted_crawler.py       Manual mode: httpx + html2text, no browser
+  cloudflare_crawler.py     CF mode: Cloudflare Browser Rendering API
+  discoverer.py             Pre-crawl URL discovery (sitemap + homepage links)
+  content_extractor.py      HTML → structured content (BS4)
 
-**The Mistake:** Running Playwright locally on the same VM as the web server. 
-Headless browsers leak memory. Opening 50 tabs on a university website will crash a standard VM (OOM - Out of Memory). Furthermore, sites like Cloudflare will detect the datacenter IP and block the crawler.
+analyzer/
+  analyzer.py               AI analysis with Azure OpenAI function calling
+  benchmarks.py             Competitor benchmarking vs top-200 universities
+  metrics.py                Score calculations + percentile ranks
 
-**The Best Practice (Scraping Infrastructure):**
-*   **Headless Browser APIs:** Instead of running Playwright on the backend, enterprise apps use services like Browserless.io, ScrapingBee, or Apify. These handle residential proxies, captchas, and browser management.
-*   **DOM Extraction:** Instead of passing raw HTML to the LLM (which eats up millions of tokens and costs a fortune), extract only the text or use markdown converters (like `html2text` or Mozilla's Readability) before sending it to the AI.
+generator/
+  guide_generator.py        Compiles analyzed pages → HTML guidebook
+```
 
-## 4. The "Configuration & Environment" Problem
+### Crawl Pipeline
 
-**The Mistake:** Hardcoding IP addresses and API keys in the code (`VITE_API_URL=http://...`).
-When you deploy to Vercel, the code tries to hit the hardcoded IP, but forgets about the production proxy rules.
+```
+[User clicks Discover]
+  → discoverer.py: sitemap.xml + shallow homepage scan
+  → stores discovered_urls[] in university document
+  → user selects/deselects pages in UI
 
-**The Best Practice (12-Factor App):**
-*   Never commit `.env` files.
-*   Use environment-aware routing. In our `api.ts`, we now check `import.meta.env.DEV`. If we are coding locally, it hits `localhost:8000`. If we are in production, it uses relative paths (`/api/...`) so the hosting provider (Vercel) can handle the routing via `vercel.json`.
+[User clicks Start Crawl]
+  → routes.py picks crawl mode from crawl_config.crawl_mode:
+    auto      → crawler.py       (Playwright BFS)
+    cloudflare → cloudflare_crawler.py (CF API)
+    manual    → targeted_crawler.py   (httpx + html2text)
+  → pages stored in MongoDB with raw_text + markdown_content
+  → status: crawling → pending
 
-## Summary of Our Current Architecture
+[User clicks Start Analysis]
+  → analyzer.py: Azure OpenAI function calling per page
+  → assigns content_tags, issue_tags, quality_tags, ai_summary, ai_improvements
+  → metrics.py: calculates scores + percentiles
+  → status: analyzing → completed
+```
 
-We have successfully transitioned to a more stable architecture:
-1. **Frontend:** React/Vite hosted on Vercel. Fast, serverless, and secure.
-2. **Routing:** Vercel Rewrites securely tunnel API requests to our Azure VM.
-3. **Gateway:** Nginx on the Azure VM handles incoming traffic on port 80 and proxies it to the Python app.
-4. **Backend:** FastAPI/Uvicorn running as a daemon service (systemd) on port 8000, ensuring it restarts automatically if it crashes.
-5. **Database:** MongoDB Atlas (Cloud) storing the parsed data.
+### Page Document Schema (key fields)
+```
+url, domain, path, title, ai_title
+status: crawled | analyzed | error
+depth, parent_url, link_location, navigation_difficulty
+page_category, page_subcategory
+content_tags[], issue_tags[], quality_tags[]
+ai_summary, ai_improvements[]
+metrics: { word_count, load_time_ms, readability_score, ... }
+raw_text (capped 500k chars)
+markdown_content (CF and manual modes, capped 1M chars)
+```
 
-To scale further, the next major step would be implementing a **Message Queue (Redis/Celery)** for the scraper.
+---
+
+## Frontend (`frontend/src/`)
+
+```
+pages/
+  Dashboard.tsx           University list + status cards
+  UniversityDetail.tsx    7-tab view: Crawl, Overview, Pages, Tree, Graph, Metrics, Outreach
+  PageReport.tsx          Per-page detail
+  GuideGenerator.tsx      HTML guidebook view
+
+components/
+  layout/
+    Layout.tsx            Sidebar + main content
+    Sidebar.tsx           Nav with live university status dots
+  ui/
+    Button, Card, Badge, Input, Modal, Tabs, ...
+    ErrorBoundary.tsx     Global + per-route crash protection
+  university/
+    SiteDiscovery.tsx     URL tree with checkboxes (pre-crawl pruning)
+    SiteTree.tsx          Post-crawl tree visualization
+    SiteGraph.tsx         Link graph (React Flow)
+    PageTable.tsx         Paginated page list with filters
+    MetricsCharts.tsx     Score charts (Recharts)
+    OutreachTab.tsx       AI cold email generator
+
+lib/
+  api.ts                  React Query hooks (auto-polling on active status)
+  types.ts                TypeScript types
+  utils.ts                Helpers
+```
+
+### Data Flow
+
+```
+useUniversity(id)
+  refetchInterval: 3s when status = crawling | analyzing | discovering
+
+useUniversities()
+  refetchInterval: 5s when any university is active
+```
+
+---
+
+## Design System
+
+Dark-first enterprise theme. Tokens defined in `index.css` as CSS variables, mapped to Tailwind in `tailwind.config.ts`.
+
+Key tokens:
+- `--theme-background`: `#0a0a0a`
+- `--theme-primary`: `#06D6A0` (teal)
+- `--theme-brand-secondary`: `#9333ea` (purple)
+- `--theme-nav-accent`: `#7877FF`
+
+All components use semantic tokens (`bg-card`, `text-foreground`, etc.) — never hardcoded hex.
+
+---
+
+## Architectural Roadmap
+
+### Phase 1 — Current (v2.1)
+- [x] Auto Playwright BFS crawler
+- [x] Manual URL selection + pruning
+- [x] Cloudflare Browser Rendering integration (needs CF credentials)
+- [x] URL discovery (sitemap + homepage)
+- [x] Markdown content storage
+- [x] AI analysis with 150+ tags
+- [x] Guide generator
+- [x] Outreach email generator
+- [x] Live status polling
+
+### Phase 2 — Next
+- [ ] **Tag annotations on Markdown** — highlight specific text chunks with issue/content tags, store as `annotations[]` per page. Enables inline "bad text" / "good text" rendering.
+- [ ] **Outreach history** — persist generated emails to MongoDB, show list per university
+- [ ] **Real-time progress** — WebSocket or SSE for crawl progress (pages crawled count live)
+- [ ] **Markdown viewer** — render stored `markdown_content` in Page detail with tag highlights
+
+### Phase 3 — Scale
+- [ ] **Message queue** — Redis + Celery for crawl/analysis jobs (prevents FastAPI timeout issues at scale)
+- [ ] **Competitor database** — bulk pre-crawl top-500 universities, cache benchmarks
+- [ ] **PDF export** — audit report as branded PDF
+- [ ] **Multi-user** — auth + per-user university isolation
+
+---
+
+## Known Constraints
+
+| Constraint | Detail |
+|------------|--------|
+| Azure OpenAI | `max_completion_tokens` only, no `temperature`, no `api-version` query param |
+| Cloudflare crawl | Requires Workers Paid plan + Browser Rendering API enabled |
+| Playwright on VM | ~200–400MB RAM per crawl — avoid running multiple concurrent auto-crawls |
+| Vercel rewrites | `vercel.json` → Nginx → FastAPI. Never bypass. |

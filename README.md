@@ -1,72 +1,111 @@
-# UniAudit Agent
+# UniAudit
 
-A comprehensive web-scraping and AI-powered analysis tool designed to audit university websites. It focuses on evaluating the availability and quality of information critical to prospective students, such as admissions, tuition fees, and international student support.
+AI-powered platform for auditing university admission websites.
+Business model: cold-pitch universities with a free audit report, then sell consulting.
 
-## Architecture & Technology Stack
+---
 
-The application is split into two main components:
+## Stack
 
-### 1. Backend (Python / FastAPI)
-- **Data Collection:** Uses Playwright (via `playwright-stealth`) to crawl university websites, bypassing bot protection (like Cloudflare and GFW).
-- **Data Analysis:** Integrates with Azure OpenAI (`gpt-5.4-nano`) to analyze the scraped content, looking for missing information, structural issues, and calculating a score based on a proprietary rubric.
-- **Database:** MongoDB Atlas is used to store university profiles, raw page data, and generated reports.
-- **API:** Exposes a FastAPI application that serves the processed data to the frontend.
+| Layer | Tech |
+|-------|------|
+| Backend | Python 3.12, FastAPI, Motor (async), Playwright, httpx, html2text |
+| Frontend | React 18, Vite, Tailwind CSS, Framer Motion, Recharts |
+| Database | MongoDB Atlas |
+| AI | Azure OpenAI `gpt-5.4-nano` |
+| Deploy | Vercel (frontend) · Azure VM OpenClaw (backend via Nginx) |
 
-### 2. Frontend (React / Vite / Vercel)
-- **Framework:** React with Vite.
-- **Styling:** Tailwind CSS with a custom design system based on `shadcn/ui` (specifically ported from the `Clawforge` project, featuring a dark, premium aesthetic).
-- **Data Fetching:** `@tanstack/react-query` for state management and caching.
-- **Deployment:** Hosted on Vercel.
+---
 
-## Network & Deployment Architecture
-
-To ensure the Vercel frontend can communicate with the Azure-hosted backend:
-1. The backend runs on port `8000`.
-2. An `nginx` reverse proxy listens on port `80` (HTTP) and forwards requests to `localhost:8000/api/`.
-3. The Azure Network Security Group (NSG) allows inbound traffic on port `80`.
-4. Vercel's `vercel.json` rewrites requests from `/api/*` to `http://<AZURE_VM_IP>/uni-api/*`.
-
-## Local Development Setup
+## Local Development
 
 ### Backend
-1. Create a `.env.local` file with the required credentials:
-   ```env
-   MONGODB_URI="..."
-   AZURE_OPENAI_ENDPOINT="..."
-   AZURE_OPENAI_API_KEY="..."
-   AZURE_OPENAI_MODEL="gpt-5.4-nano"
-   ```
-2. Set up a virtual environment and install dependencies:
-   ```bash
-   python3 -m venv venv
-   source venv/bin/activate
-   pip install -r requirements.txt
-   playwright install chromium
-   ```
-3. Run the backend:
-   ```bash
-   bash start-dev.sh
-   ```
+```bash
+cd backend
+python3.12 -m venv venv
+source venv/bin/activate
+pip install -r requirements.txt
+playwright install chromium
+cp .env.example .env   # fill in secrets
+./start-dev.sh
+# → http://localhost:8000
+```
 
 ### Frontend
-1. Navigate to the frontend directory:
-   ```bash
-   cd frontend
-   ```
-2. Install dependencies:
-   ```bash
-   npm install
-   ```
-3. Run the development server (uses Vite proxy to forward API requests to `localhost:8000`):
-   ```bash
-   npm run dev
-   ```
-
-## Production Deployment (Vercel)
-
-The frontend is deployed on Vercel. To deploy changes:
 ```bash
 cd frontend
-vercel --prod --yes
+npm install
+npm run dev
+# → http://localhost:5173 (proxies /api to localhost:8000)
 ```
-Note: Ensure `VITE_API_URL` is NOT hardcoded in production to avoid Mixed Content errors. Vercel rewrites handle the API routing.
+
+### Environment variables (backend `.env`)
+```env
+MONGODB_URI=...
+AZURE_OPENAI_ENDPOINT=...
+AZURE_OPENAI_API_KEY=...
+AZURE_OPENAI_MODEL=gpt-5.4-nano
+
+# Optional — enables Cloudflare crawl mode
+CLOUDFLARE_ACCOUNT_ID=
+CLOUDFLARE_API_TOKEN=
+```
+
+---
+
+## Production Deployment
+
+Frontend deploys automatically via GitHub Actions on push to `main`.
+Backend runs as a systemd service on the Azure VM.
+
+**Routing:** Vercel rewrites `/api/*` → `http://<VM_IP>/api/*` via `vercel.json`.
+Never change `api.ts` API_URL logic or `vercel.json` — it's what makes HTTPS→HTTP work.
+
+---
+
+## Crawl Modes
+
+UniAudit supports three crawl strategies per university:
+
+| Mode | Engine | Best for |
+|------|--------|----------|
+| `auto` | Playwright BFS | SPAs, dynamic JS, unknown site structure |
+| `cloudflare` | CF Browser Rendering API | Clean Markdown output, JS rendering without running Playwright on VM |
+| `manual` | httpx + html2text | You know exactly which pages to audit, fastest |
+
+**Manual pruning flow:**
+1. Open university → **Crawl** tab
+2. Click **Discover URLs** — scans sitemap.xml + homepage links (no browser, ~5–10s)
+3. Uncheck pages you don't need (news, calendar, portal, etc.)
+4. Optionally add specific URLs manually
+5. Click **Start Crawl**
+
+---
+
+## API Endpoints
+
+```
+POST   /api/universities                        create
+GET    /api/universities                        list
+GET    /api/universities/{id}                   get
+DELETE /api/universities/{id}                   delete
+
+POST   /api/universities/{id}/discover          URL discovery (pre-crawl)
+PUT    /api/universities/{id}/crawl-config      update crawl mode/urls/excludes
+POST   /api/universities/{id}/crawl             start crawl (background)
+POST   /api/universities/{id}/analyze           start AI analysis (background)
+GET    /api/universities/{id}/status            crawl/analysis status
+GET    /api/universities/{id}/crawl-status      detailed crawl progress + mode info
+
+GET    /api/universities/{id}/pages             paginated, filterable
+GET    /api/universities/{id}/pages/{page_id}   single page detail
+POST   /api/universities/{id}/pages/manual      fetch specific URLs immediately
+
+GET    /api/universities/{id}/tree              site tree (for Tree tab)
+GET    /api/universities/{id}/graph             link graph (for Graph tab)
+GET    /api/universities/{id}/metrics           score metrics
+
+POST   /api/universities/{id}/generate-guide    compile HTML guidebook
+GET    /api/universities/{id}/guide             get generated guide
+POST   /api/universities/{id}/generate-outreach AI cold email generator
+```

@@ -26,5 +26,9 @@ class Settings(BaseSettings):
     ANALYZER_MAX_CONCURRENCY: int = 5
     ANALYZER_MAX_TOKENS: int = 4096
 
+    # Cloudflare Browser Rendering (optional)
+    CLOUDFLARE_ACCOUNT_ID: str = ""
+    CLOUDFLARE_API_TOKEN: str = ""
+
 
 settings = Settings()

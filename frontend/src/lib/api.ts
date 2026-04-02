@@ -11,6 +11,8 @@ import type {
   Guide,
   OutreachRequest,
   OutreachResult,
+  DiscoverResult,
+  CrawlStatus,
 } from './types';
 
 // Hard fix for Mixed Content: Force relative path in production so Vercel Rewrites catch it.
@@ -40,6 +42,13 @@ export function useUniversities() {
   return useQuery<University[]>({
     queryKey: ['universities'],
     queryFn: () => apiFetch<University[]>('/api/universities'),
+    refetchInterval: (query) => {
+      const list = query.state.data as University[] | undefined;
+      const hasActive = list?.some((u) =>
+        ['crawling', 'analyzing', 'discovering'].includes(u.status)
+      );
+      return hasActive ? 5000 : false;
+    },
   });
 }
 
@@ -48,6 +57,12 @@ export function useUniversity(id: string) {
     queryKey: ['university', id],
     queryFn: () => apiFetch<University>(`/api/universities/${id}`),
     enabled: !!id,
+    refetchInterval: (query) => {
+      const status = (query.state.data as University | undefined)?.status;
+      return status === 'crawling' || status === 'analyzing' || status === 'discovering'
+        ? 3000
+        : false;
+    },
   });
 }
 
@@ -189,5 +204,76 @@ export function useGenerateOutreach() {
         method: 'POST',
         body: JSON.stringify(req),
       }),
+  });
+}
+
+export function useDiscoverUrls() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (universityId: string) =>
+      apiFetch<DiscoverResult>(`/api/universities/${universityId}/discover`, {
+        method: 'POST',
+      }),
+    onSuccess: (_data, universityId) => {
+      queryClient.invalidateQueries({ queryKey: ['university', universityId] });
+    },
+  });
+}
+
+export function useUpdateCrawlConfig() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({
+      universityId,
+      config,
+    }: {
+      universityId: string;
+      config: {
+        crawl_mode?: string;
+        manual_urls?: string[];
+        user_excluded_urls?: string[];
+        max_depth?: number;
+        max_pages?: number;
+      };
+    }) =>
+      apiFetch<University>(`/api/universities/${universityId}/crawl-config`, {
+        method: 'PUT',
+        body: JSON.stringify(config),
+      }),
+    onSuccess: (_data, { universityId }) => {
+      queryClient.invalidateQueries({ queryKey: ['university', universityId] });
+    },
+  });
+}
+
+export function useAddManualPages() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ universityId, urls }: { universityId: string; urls: string[] }) =>
+      apiFetch<{ added: number; requested: number }>(
+        `/api/universities/${universityId}/pages/manual`,
+        {
+          method: 'POST',
+          body: JSON.stringify({ urls }),
+        }
+      ),
+    onSuccess: (_data, { universityId }) => {
+      queryClient.invalidateQueries({ queryKey: ['university', universityId] });
+      queryClient.invalidateQueries({ queryKey: ['university-pages', universityId] });
+    },
+  });
+}
+
+export function useCrawlStatus(id: string, enabled = true) {
+  return useQuery<CrawlStatus>({
+    queryKey: ['crawl-status', id],
+    queryFn: () => apiFetch<CrawlStatus>(`/api/universities/${id}/crawl-status`),
+    enabled: !!id && enabled,
+    refetchInterval: (query) => {
+      const status = query.state.data?.status;
+      return status === 'crawling' || status === 'analyzing' || status === 'discovering'
+        ? 3000
+        : false;
+    },
   });
 }

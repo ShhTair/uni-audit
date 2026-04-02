@@ -35,6 +35,12 @@ class CrawlConfig(BaseModel):
     max_pages: int = 300
     excluded_patterns: list[str] = []
     focus_patterns: list[str] = []
+    # Crawl mode: "auto" (Playwright BFS), "cloudflare" (CF API), "manual" (specific URLs only)
+    crawl_mode: str = "auto"
+    # For manual mode: list of URLs to crawl
+    manual_urls: list[str] = []
+    # URLs explicitly excluded by user (discovered but deselected)
+    user_excluded_urls: list[str] = []
 
 
 class CategoryScores(BaseModel):
@@ -115,6 +121,16 @@ class UniversityUpdate(BaseModel):
     crawl_config: Optional[CrawlConfig] = None
 
 
+class DiscoveredUrl(BaseModel):
+    """A URL found during site discovery (pre-crawl)."""
+    url: str
+    title: str = ""
+    path: str = ""
+    domain: str = ""
+    source: str = "sitemap"  # "sitemap" | "homepage" | "manual"
+    depth_estimate: int = 0
+
+
 class UniversityInDB(BaseModel):
     id: str = Field(alias="_id")
     name: str
@@ -127,6 +143,7 @@ class UniversityInDB(BaseModel):
     updated_at: datetime
     crawl_config: CrawlConfig = CrawlConfig()
     summary: UniversitySummary = UniversitySummary()
+    discovered_urls: list[DiscoveredUrl] = []
 
     model_config = {"populate_by_name": True}
 
@@ -143,6 +160,7 @@ class UniversityResponse(BaseModel):
     updated_at: datetime
     crawl_config: CrawlConfig
     summary: UniversitySummary
+    discovered_urls: list[DiscoveredUrl] = []
 
 
 class PageInDB(BaseModel):
@@ -249,6 +267,8 @@ def serialize_university(doc: dict) -> dict:
         doc["crawl_config"] = CrawlConfig().model_dump()
     if "summary" not in doc:
         doc["summary"] = UniversitySummary().model_dump()
+    if "discovered_urls" not in doc:
+        doc["discovered_urls"] = []
     return doc
 
 

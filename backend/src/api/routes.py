@@ -14,6 +14,9 @@ from src.analyzer.analyzer import PageAnalyzer
 from src.analyzer.metrics import MetricsCalculator
 from src.config import settings
 from src.crawler.crawler import UniversityCrawler
+from src.crawler.targeted_crawler import TargetedCrawler
+from src.crawler import cloudflare_crawler as cf_crawler
+from src.crawler.discoverer import discover_site_urls
 from src.generator.guide_generator import generate_guide
 from pydantic import BaseModel
 
@@ -32,6 +35,20 @@ class OutreachRequest(BaseModel):
     contact_name: str
     contact_title: str = "Head of Admissions"
     tone: str = "professional"  # professional | friendly | consultative
+
+
+class CrawlConfigUpdate(BaseModel):
+    crawl_mode: Optional[str] = None         # "auto" | "cloudflare" | "manual"
+    manual_urls: Optional[list[str]] = None
+    user_excluded_urls: Optional[list[str]] = None
+    max_depth: Optional[int] = None
+    max_pages: Optional[int] = None
+    excluded_patterns: Optional[list[str]] = None
+    focus_patterns: Optional[list[str]] = None
+
+
+class ManualPagesRequest(BaseModel):
+    urls: list[str]
 
 logger = logging.getLogger("uni_audit.api")
 router = APIRouter(prefix="/api")
@@ -64,26 +81,67 @@ def _validate_object_id(id_str: str) -> ObjectId:
 
 
 async def _run_crawl(university_id: str) -> None:
-    """Background task: crawl a university."""
+    """Background task: crawl a university — dispatches based on crawl_mode."""
     db = get_db()
     uni = await db.universities.find_one({"_id": ObjectId(university_id)})
     if not uni:
         logger.error("University %s not found for crawl", university_id)
         return
+
     config = uni.get("crawl_config", {})
-    crawler = UniversityCrawler(
-        db=db,
-        university_id=university_id,
-        domains=uni["domains"],
-        max_depth=config.get("max_depth", settings.CRAWLER_MAX_DEPTH),
-        max_pages=config.get("max_pages", settings.CRAWLER_MAX_PAGES),
-        excluded_patterns=config.get("excluded_patterns", []),
-        focus_patterns=config.get("focus_patterns", []),
-        request_delay=settings.CRAWLER_REQUEST_DELAY,
-    )
+    crawl_mode = config.get("crawl_mode", "auto")
+
     try:
-        count = await crawler.crawl()
-        logger.info("Crawl finished for %s: %d pages", university_id, count)
+        if crawl_mode == "manual":
+            manual_urls = config.get("manual_urls", [])
+            if not manual_urls:
+                logger.error("Manual mode but no manual_urls set for %s", university_id)
+                await db.universities.update_one(
+                    {"_id": ObjectId(university_id)},
+                    {"$set": {"status": "failed"}},
+                )
+                return
+            crawler = TargetedCrawler(
+                db=db,
+                university_id=university_id,
+                domains=uni["domains"],
+                urls=manual_urls,
+            )
+            count = await crawler.crawl()
+            logger.info("Manual crawl finished for %s: %d pages", university_id, count)
+
+        elif crawl_mode == "cloudflare":
+            if not cf_crawler.is_configured():
+                logger.error("Cloudflare mode requested but CF credentials not set for %s", university_id)
+                await db.universities.update_one(
+                    {"_id": ObjectId(university_id)},
+                    {"$set": {"status": "failed"}},
+                )
+                return
+            domain = uni["domains"][0]
+            count = await cf_crawler.crawl_site(
+                db=db,
+                university_id=university_id,
+                domains=uni["domains"],
+                start_url=f"https://{domain}",
+                max_pages=config.get("max_pages", settings.CRAWLER_MAX_PAGES),
+            )
+            logger.info("Cloudflare crawl finished for %s: %d pages", university_id, count)
+
+        else:  # "auto" — original Playwright BFS
+            crawler = UniversityCrawler(
+                db=db,
+                university_id=university_id,
+                domains=uni["domains"],
+                max_depth=config.get("max_depth", settings.CRAWLER_MAX_DEPTH),
+                max_pages=config.get("max_pages", settings.CRAWLER_MAX_PAGES),
+                excluded_patterns=config.get("excluded_patterns", []),
+                focus_patterns=config.get("focus_patterns", []),
+                request_delay=settings.CRAWLER_REQUEST_DELAY,
+            )
+            count = await crawler.crawl()
+            logger.info("Auto crawl finished for %s: %d pages", university_id, count)
+
     except Exception as exc:
         logger.exception("Crawl failed for %s: %s", university_id, exc)
         await db.universities.update_one(
@@ -590,4 +648,165 @@ Rules:
         "body": email_body,
         "tone": req.tone,
         "audit_score": overall_score,
+    }
+
+
+# ------------------------------------------------------------------
+# Site Discovery & Crawl Config
+# ------------------------------------------------------------------
+
+
+@router.post("/universities/{university_id}/discover")
+async def discover_urls(university_id: str) -> dict[str, Any]:
+    """
+    Fast pre-crawl URL discovery via sitemap.xml + homepage links.
+    Stores discovered URLs in the university document.
+    Returns the discovered URL list so the user can prune before crawling.
+    """
+    db = get_db()
+    oid = _validate_object_id(university_id)
+    uni = await db.universities.find_one({"_id": oid})
+    if not uni:
+        raise HTTPException(status_code=404, detail="University not found")
+
+    # Update status
+    await db.universities.update_one(
+        {"_id": oid},
+        {"$set": {"status": "discovering", "updated_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc)}},
+    )
+
+    try:
+        urls = await discover_site_urls(domains=uni["domains"], max_urls=500)
+    except Exception as exc:
+        logger.exception("Discovery failed for %s: %s", university_id, exc)
+        await db.universities.update_one(
+            {"_id": oid},
+            {"$set": {"status": "pending"}},
+        )
+        raise HTTPException(status_code=500, detail=f"Discovery failed: {exc}")
+
+    # Store in university document
+    await db.universities.update_one(
+        {"_id": oid},
+        {
+            "$set": {
+                "discovered_urls": urls,
+                "status": "pending",
+                "updated_at": __import__("datetime").datetime.now(__import__("datetime").timezone.utc),
+            }
+        },
+    )
+
+    return {
+        "university_id": university_id,
+        "total_discovered": len(urls),
+        "urls": urls,
+    }
+
+
+@router.put("/universities/{university_id}/crawl-config")
+async def update_crawl_config(university_id: str, update: CrawlConfigUpdate) -> dict[str, Any]:
+    """
+    Update crawl configuration — crawl mode, manual URLs, excluded URLs, etc.
+    Call this after /discover to set which pages to include/exclude before crawling.
+    """
+    db = get_db()
+    oid = _validate_object_id(university_id)
+    uni = await db.universities.find_one({"_id": oid})
+    if not uni:
+        raise HTTPException(status_code=404, detail="University not found")
+
+    current_config = uni.get("crawl_config", {})
+    patch: dict[str, Any] = {}
+
+    if update.crawl_mode is not None:
+        if update.crawl_mode not in ("auto", "cloudflare", "manual"):
+            raise HTTPException(status_code=400, detail="crawl_mode must be auto | cloudflare | manual")
+        patch["crawl_config.crawl_mode"] = update.crawl_mode
+
+    if update.manual_urls is not None:
+        patch["crawl_config.manual_urls"] = update.manual_urls
+
+    if update.user_excluded_urls is not None:
+        patch["crawl_config.user_excluded_urls"] = update.user_excluded_urls
+
+    if update.max_depth is not None:
+        patch["crawl_config.max_depth"] = update.max_depth
+
+    if update.max_pages is not None:
+        patch["crawl_config.max_pages"] = update.max_pages
+
+    if update.excluded_patterns is not None:
+        patch["crawl_config.excluded_patterns"] = update.excluded_patterns
+
+    if update.focus_patterns is not None:
+        patch["crawl_config.focus_patterns"] = update.focus_patterns
+
+    if patch:
+        patch["updated_at"] = __import__("datetime").datetime.now(__import__("datetime").timezone.utc)
+        await db.universities.update_one({"_id": oid}, {"$set": patch})
+
+    # Return updated university
+    updated = await db.universities.find_one({"_id": oid})
+    return serialize_university(updated)
+
+
+@router.post("/universities/{university_id}/pages/manual")
+async def add_manual_pages(university_id: str, req: ManualPagesRequest) -> dict[str, Any]:
+    """
+    Immediately fetch and store specific pages provided by the user.
+    Uses the targeted crawler (httpx, no browser).
+    This is for ad-hoc page addition — not a full crawl.
+    """
+    db = get_db()
+    oid = _validate_object_id(university_id)
+    uni = await db.universities.find_one({"_id": oid})
+    if not uni:
+        raise HTTPException(status_code=404, detail="University not found")
+
+    if not req.urls:
+        raise HTTPException(status_code=400, detail="No URLs provided")
+
+    crawler = TargetedCrawler(
+        db=db,
+        university_id=university_id,
+        domains=uni["domains"],
+        urls=req.urls,
+    )
+
+    try:
+        count = await crawler.crawl()
+    except Exception as exc:
+        logger.exception("Manual page add failed for %s: %s", university_id, exc)
+        raise HTTPException(status_code=500, detail=f"Failed to fetch pages: {exc}")
+
+    return {"added": count, "requested": len(req.urls)}
+
+
+@router.get("/universities/{university_id}/crawl-status")
+async def get_crawl_status(university_id: str) -> dict[str, Any]:
+    """Detailed crawl progress for polling."""
+    db = get_db()
+    oid = _validate_object_id(university_id)
+    uni = await db.universities.find_one(
+        {"_id": oid},
+        {"status": 1, "summary": 1, "crawl_config": 1},
+    )
+    if not uni:
+        raise HTTPException(status_code=404, detail="University not found")
+
+    total_pages = await db.pages.count_documents({"university_id": oid})
+    analyzed_pages = await db.pages.count_documents({"university_id": oid, "status": "analyzed"})
+
+    config = uni.get("crawl_config", {})
+    manual_count = len(config.get("manual_urls", []))
+
+    return {
+        "status": uni.get("status", "pending"),
+        "crawl_mode": config.get("crawl_mode", "auto"),
+        "total_pages_crawled": total_pages,
+        "total_pages_analyzed": analyzed_pages,
+        "manual_urls_count": manual_count,
+        "cf_available": cf_crawler.is_configured(),
+        "summary": uni.get("summary", {}),
     }

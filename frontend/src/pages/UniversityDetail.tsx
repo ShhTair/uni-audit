@@ -3,7 +3,6 @@ import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  Play,
   BarChart3,
   FileText,
   Network,
@@ -12,17 +11,17 @@ import {
   Globe,
   AlertCircle,
   AlertTriangle,
-  Lightbulb,
   Compass,
-  ShieldCheck,
   Search as SearchIcon,
   Sparkles,
-  Clock,
   Zap,
   ChevronLeft,
   ChevronRight,
   BookOpen,
   Mail,
+  Scan,
+  Trash2,
+  Loader2,
 } from 'lucide-react';
 import {
   useUniversity,
@@ -32,6 +31,9 @@ import {
   useUniversityMetrics,
   useStartCrawl,
   useStartAnalysis,
+  useDeleteUniversity,
+  useDiscoverUrls,
+  useUpdateCrawlConfig,
 } from '@/lib/api';
 import { PageHeader } from '@/components/ui/PageHeader';
 import Card from '@/components/ui/Card';
@@ -39,6 +41,7 @@ import Button from '@/components/ui/Button';
 import Badge from '@/components/ui/Badge';
 import Tabs from '@/components/ui/Tabs';
 import Input from '@/components/ui/Input';
+import Modal from '@/components/ui/Modal';
 import ScoreGauge from '@/components/ui/ScoreGauge';
 import { SkeletonCard, SkeletonChart } from '@/components/ui/Skeleton';
 import EmptyState from '@/components/ui/EmptyState';
@@ -49,35 +52,55 @@ import SiteTree from '@/components/university/SiteTree';
 import SiteGraph from '@/components/university/SiteGraph';
 import MetricsCharts from '@/components/university/MetricsCharts';
 import OutreachTab from '@/components/university/OutreachTab';
+import SiteDiscovery from '@/components/university/SiteDiscovery';
 import {
   countryToEmoji,
   formatDate,
   getStatusColor,
   cn,
 } from '@/lib/utils';
-import type { PageFilters } from '@/lib/types';
+import type { PageFilters, CrawlMode } from '@/lib/types';
 
-const tabs = [
+const TABS = [
+  { id: 'crawl',    label: 'Crawl',    icon: <Scan className="w-4 h-4" /> },
   { id: 'overview', label: 'Overview', icon: <LayoutDashboard className="w-4 h-4" /> },
-  { id: 'pages', label: 'Pages', icon: <FileText className="w-4 h-4" /> },
-  { id: 'tree', label: 'Tree', icon: <GitBranch className="w-4 h-4" /> },
-  { id: 'graph', label: 'Graph', icon: <Network className="w-4 h-4" /> },
-  { id: 'metrics', label: 'Metrics', icon: <BarChart3 className="w-4 h-4" /> },
+  { id: 'pages',    label: 'Pages',    icon: <FileText className="w-4 h-4" /> },
+  { id: 'tree',     label: 'Tree',     icon: <GitBranch className="w-4 h-4" /> },
+  { id: 'graph',    label: 'Graph',    icon: <Network className="w-4 h-4" /> },
+  { id: 'metrics',  label: 'Metrics',  icon: <BarChart3 className="w-4 h-4" /> },
   { id: 'outreach', label: 'Outreach', icon: <Mail className="w-4 h-4" /> },
 ];
+
+function LiveStatusBanner({ status }: { status: string }) {
+  if (!['crawling', 'analyzing', 'discovering'].includes(status)) return null;
+  const msgs: Record<string, string> = {
+    discovering: 'Scanning sitemap & homepage links…',
+    crawling: 'Crawling pages…',
+    analyzing: 'AI is analyzing pages…',
+  };
+  return (
+    <div className="flex items-center gap-3 px-4 py-3 rounded-xl bg-[rgba(6,214,160,0.08)] border border-[rgba(6,214,160,0.2)] mb-4">
+      <Loader2 className="w-4 h-4 text-[#06D6A0] animate-spin shrink-0" />
+      <p className="text-sm text-[#06D6A0]">{msgs[status] || 'Processing…'}</p>
+    </div>
+  );
+}
 
 export default function UniversityDetail() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('overview');
+  const [activeTab, setActiveTab] = useState('crawl');
   const [pageFilters, setPageFilters] = useState<PageFilters>({
     page: 1,
     per_page: 20,
     sort_by: 'ai_title',
     sort_order: 'asc',
   });
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
+  // useUniversity auto-polls every 3s when status is active (crawling/analyzing/discovering)
   const { data: university, isLoading } = useUniversity(id!);
+
   const { data: pagesData, isLoading: pagesLoading } = useUniversityPages(
     id!,
     activeTab === 'pages' ? pageFilters : {}
@@ -88,6 +111,9 @@ export default function UniversityDetail() {
 
   const startCrawl = useStartCrawl();
   const startAnalysis = useStartAnalysis();
+  const deleteUniversity = useDeleteUniversity();
+  const discoverUrls = useDiscoverUrls();
+  const updateCrawlConfig = useUpdateCrawlConfig();
 
   const summary = university?.summary;
 
@@ -95,9 +121,13 @@ export default function UniversityDetail() {
     setPageFilters((prev) => ({
       ...prev,
       sort_by: field,
-      sort_order:
-        prev.sort_by === field && prev.sort_order === 'asc' ? 'desc' : 'asc',
+      sort_order: prev.sort_by === field && prev.sort_order === 'asc' ? 'desc' : 'asc',
     }));
+  };
+
+  const handleDelete = async () => {
+    await deleteUniversity.mutateAsync(id!);
+    navigate('/');
   };
 
   if (isLoading) {
@@ -105,9 +135,7 @@ export default function UniversityDetail() {
       <div className="space-y-6">
         <SkeletonCard />
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4">
-          {[1, 2, 3, 4].map((i) => (
-            <SkeletonCard key={i} />
-          ))}
+          {[1, 2, 3, 4].map((i) => <SkeletonCard key={i} />)}
         </div>
       </div>
     );
@@ -123,6 +151,16 @@ export default function UniversityDetail() {
     );
   }
 
+  const crawlConfig = university.crawl_config ?? {
+    crawl_mode: 'auto' as CrawlMode,
+    manual_urls: [],
+    user_excluded_urls: [],
+    max_depth: 5,
+    max_pages: 300,
+    excluded_patterns: [],
+    focus_patterns: [],
+  };
+
   return (
     <>
       <Breadcrumbs />
@@ -131,16 +169,6 @@ export default function UniversityDetail() {
         subtitle={`${countryToEmoji(university.country)} ${university.domains.join(', ')}`}
         actions={
           <div className="flex items-center gap-2">
-            {(university.status === 'pending' || university.status === 'failed') && (
-              <Button
-                variant="primary"
-                icon={<Play className="w-4 h-4" />}
-                onClick={() => startCrawl.mutate(id!)}
-                loading={startCrawl.isPending}
-              >
-                Start Crawl
-              </Button>
-            )}
             {university.status === 'crawled' && (
               <Button
                 variant="primary"
@@ -165,13 +193,58 @@ export default function UniversityDetail() {
             >
               {university.status}
             </Badge>
+            <button
+              onClick={() => setDeleteOpen(true)}
+              className="p-2 rounded-lg text-white/30 hover:text-red-400 hover:bg-red-400/10 transition-all"
+              title="Delete university"
+            >
+              <Trash2 className="w-4 h-4" />
+            </button>
           </div>
         }
       />
 
-      <Tabs tabs={tabs} activeTab={activeTab} onChange={setActiveTab} className="mb-6" />
+      <LiveStatusBanner status={university.status} />
+
+      <Tabs tabs={TABS} activeTab={activeTab} onChange={setActiveTab} className="mb-6" />
 
       <AnimatePresence mode="wait">
+
+        {/* ── CRAWL TAB ── */}
+        {activeTab === 'crawl' && (
+          <motion.div
+            key="crawl"
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+          >
+            <Card variant="default" padding="lg">
+              <SiteDiscovery
+                universityId={id!}
+                discoveredUrls={university.discovered_urls ?? []}
+                crawlConfig={{
+                  crawl_mode: crawlConfig.crawl_mode as CrawlMode,
+                  manual_urls: crawlConfig.manual_urls,
+                  user_excluded_urls: crawlConfig.user_excluded_urls,
+                  cf_available: false,
+                }}
+                isDiscovering={discoverUrls.isPending}
+                onDiscover={() => discoverUrls.mutate(id!)}
+                onSaveConfig={(cfg) =>
+                  updateCrawlConfig.mutate({
+                    universityId: id!,
+                    config: cfg,
+                  })
+                }
+                onStartCrawl={() => startCrawl.mutate(id!)}
+                isSaving={updateCrawlConfig.isPending}
+                isCrawling={startCrawl.isPending || university.status === 'crawling'}
+              />
+            </Card>
+          </motion.div>
+        )}
+
+        {/* ── OVERVIEW TAB ── */}
         {activeTab === 'overview' && (
           <motion.div
             key="overview"
@@ -185,7 +258,7 @@ export default function UniversityDetail() {
               <span>Updated {formatDate(university.updated_at)}</span>
             </div>
 
-            {summary && (
+            {summary ? (
               <>
                 <div className="flex flex-wrap gap-6 justify-center py-4">
                   <ScoreGauge score={summary.overall_score} size="lg" label="Overall" />
@@ -198,11 +271,7 @@ export default function UniversityDetail() {
                 </div>
 
                 <div className="grid grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
-                  <ScoreCard
-                    icon={<FileText className="w-4 h-4" />}
-                    label="Total Pages"
-                    value={summary.total_pages}
-                  />
+                  <ScoreCard icon={<FileText className="w-4 h-4" />} label="Total Pages" value={summary.total_pages} />
                   <ScoreCard
                     icon={<AlertCircle className="w-4 h-4" />}
                     label="Critical Issues"
@@ -215,11 +284,7 @@ export default function UniversityDetail() {
                     value={summary.warnings}
                     colorByScore={summary.warnings === 0 ? 100 : summary.warnings < 10 ? 60 : 30}
                   />
-                  <ScoreCard
-                    icon={<Compass className="w-4 h-4" />}
-                    label="Avg Depth"
-                    value={summary.avg_depth.toFixed(1)}
-                  />
+                  <ScoreCard icon={<Compass className="w-4 h-4" />} label="Avg Depth" value={summary.avg_depth.toFixed(1)} />
                   <ScoreCard
                     icon={<Zap className="w-4 h-4" />}
                     label="Confusion Rate"
@@ -236,18 +301,14 @@ export default function UniversityDetail() {
 
                 {summary.top_issues.length > 0 && (
                   <Card variant="default" padding="md">
-                    <h3 className="text-sm font-semibold text-foreground mb-4">
-                      Top Issues
-                    </h3>
+                    <h3 className="text-sm font-semibold text-foreground mb-4">Top Issues</h3>
                     <IssuesList issues={summary.top_issues} />
                   </Card>
                 )}
 
                 {Object.keys(summary.category_completeness).length > 0 && (
                   <Card variant="default" padding="md">
-                    <h3 className="text-sm font-semibold text-foreground mb-4">
-                      Category Completeness
-                    </h3>
+                    <h3 className="text-sm font-semibold text-foreground mb-4">Category Completeness</h3>
                     <div className="space-y-3">
                       {Object.entries(summary.category_completeness)
                         .sort(([, a], [, b]) => b - a)
@@ -259,9 +320,7 @@ export default function UniversityDetail() {
                             animate={{ opacity: 1, x: 0 }}
                             transition={{ delay: index * 0.04 }}
                           >
-                            <span className="text-sm text-foreground w-32 truncate">
-                              {category}
-                            </span>
+                            <span className="text-sm text-foreground w-32 truncate">{category}</span>
                             <div className="flex-1 h-2 rounded-full bg-border-subtle overflow-hidden">
                               <motion.div
                                 className="h-full rounded-full gradient-bg"
@@ -279,18 +338,18 @@ export default function UniversityDetail() {
                   </Card>
                 )}
               </>
-            )}
-
-            {!summary && (
+            ) : (
               <EmptyState
                 icon={BarChart3}
                 title="No data yet"
-                description="Start a crawl and analysis to see audit results."
+                description="Configure the crawl in the Crawl tab, start crawling, then run analysis."
+                action={{ label: 'Go to Crawl', onClick: () => setActiveTab('crawl') }}
               />
             )}
           </motion.div>
         )}
 
+        {/* ── PAGES TAB ── */}
         {activeTab === 'pages' && (
           <motion.div
             key="pages"
@@ -304,19 +363,13 @@ export default function UniversityDetail() {
                 placeholder="Search pages..."
                 icon={<SearchIcon className="w-4 h-4" />}
                 value={pageFilters.search || ''}
-                onChange={(e) =>
-                  setPageFilters((f) => ({ ...f, search: e.target.value, page: 1 }))
-                }
+                onChange={(e) => setPageFilters((f) => ({ ...f, search: e.target.value, page: 1 }))}
                 className="w-64"
               />
               <select
                 value={pageFilters.category || ''}
                 onChange={(e) =>
-                  setPageFilters((f) => ({
-                    ...f,
-                    category: e.target.value || undefined,
-                    page: 1,
-                  }))
+                  setPageFilters((f) => ({ ...f, category: e.target.value || undefined, page: 1 }))
                 }
                 className="px-3 py-2 text-sm rounded-lg border border-border bg-card text-foreground"
               >
@@ -354,9 +407,7 @@ export default function UniversityDetail() {
 
             {pagesLoading ? (
               <div className="space-y-2">
-                {[1, 2, 3, 4, 5].map((i) => (
-                  <SkeletonCard key={i} className="h-16" />
-                ))}
+                {[1, 2, 3, 4, 5].map((i) => <SkeletonCard key={i} className="h-16" />)}
               </div>
             ) : pagesData ? (
               <>
@@ -370,9 +421,8 @@ export default function UniversityDetail() {
                 {pagesData.total_pages > 1 && (
                   <div className="flex items-center justify-between">
                     <p className="text-sm text-muted-foreground">
-                      Showing {(pagesData.page - 1) * pagesData.per_page + 1} -{' '}
-                      {Math.min(pagesData.page * pagesData.per_page, pagesData.total)} of{' '}
-                      {pagesData.total} pages
+                      Showing {(pagesData.page - 1) * pagesData.per_page + 1}–
+                      {Math.min(pagesData.page * pagesData.per_page, pagesData.total)} of {pagesData.total}
                     </p>
                     <div className="flex items-center gap-2">
                       <Button
@@ -380,12 +430,7 @@ export default function UniversityDetail() {
                         size="sm"
                         icon={<ChevronLeft className="w-4 h-4" />}
                         disabled={pagesData.page <= 1}
-                        onClick={() =>
-                          setPageFilters((f) => ({
-                            ...f,
-                            page: (f.page || 1) - 1,
-                          }))
-                        }
+                        onClick={() => setPageFilters((f) => ({ ...f, page: (f.page || 1) - 1 }))}
                       >
                         Prev
                       </Button>
@@ -395,16 +440,10 @@ export default function UniversityDetail() {
                       <Button
                         variant="ghost"
                         size="sm"
-                        onClick={() =>
-                          setPageFilters((f) => ({
-                            ...f,
-                            page: (f.page || 1) + 1,
-                          }))
-                        }
+                        onClick={() => setPageFilters((f) => ({ ...f, page: (f.page || 1) + 1 }))}
                         disabled={pagesData.page >= pagesData.total_pages}
                       >
-                        Next
-                        <ChevronRight className="w-4 h-4" />
+                        Next <ChevronRight className="w-4 h-4" />
                       </Button>
                     </div>
                   </div>
@@ -420,6 +459,7 @@ export default function UniversityDetail() {
           </motion.div>
         )}
 
+        {/* ── TREE TAB ── */}
         {activeTab === 'tree' && (
           <motion.div
             key="tree"
@@ -441,6 +481,7 @@ export default function UniversityDetail() {
           </motion.div>
         )}
 
+        {/* ── GRAPH TAB ── */}
         {activeTab === 'graph' && (
           <motion.div
             key="graph"
@@ -453,15 +494,12 @@ export default function UniversityDetail() {
             ) : graph ? (
               <SiteGraph data={graph} />
             ) : (
-              <EmptyState
-                icon={Network}
-                title="No graph data"
-                description="Crawl and analyze the university to generate the site graph."
-              />
+              <EmptyState icon={Network} title="No graph data" description="Crawl and analyze the university." />
             )}
           </motion.div>
         )}
 
+        {/* ── METRICS TAB ── */}
         {activeTab === 'metrics' && (
           <motion.div
             key="metrics"
@@ -471,22 +509,17 @@ export default function UniversityDetail() {
           >
             {metricsLoading ? (
               <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                {[1, 2, 3, 4].map((i) => (
-                  <SkeletonChart key={i} />
-                ))}
+                {[1, 2, 3, 4].map((i) => <SkeletonChart key={i} />)}
               </div>
             ) : metrics ? (
               <MetricsCharts metrics={metrics} />
             ) : (
-              <EmptyState
-                icon={BarChart3}
-                title="No metrics data"
-                description="Complete an analysis to see detailed metrics."
-              />
+              <EmptyState icon={BarChart3} title="No metrics data" description="Complete an analysis to see detailed metrics." />
             )}
           </motion.div>
         )}
 
+        {/* ── OUTREACH TAB ── */}
         {activeTab === 'outreach' && (
           <motion.div
             key="outreach"
@@ -502,6 +535,34 @@ export default function UniversityDetail() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      {/* Delete confirmation modal */}
+      <Modal
+        open={deleteOpen}
+        onClose={() => setDeleteOpen(false)}
+        title="Delete University"
+        size="sm"
+      >
+        <div className="space-y-4">
+          <p className="text-sm text-muted-foreground">
+            Are you sure you want to delete <span className="text-foreground font-medium">{university.name}</span>?
+            This will permanently remove all crawled pages, analysis results, and audit data.
+          </p>
+          <div className="flex justify-end gap-3">
+            <Button variant="ghost" onClick={() => setDeleteOpen(false)}>
+              Cancel
+            </Button>
+            <Button
+              variant="primary"
+              onClick={handleDelete}
+              loading={deleteUniversity.isPending}
+              className="bg-red-500/20 text-red-400 border-red-500/30 hover:bg-red-500/30"
+            >
+              Delete
+            </Button>
+          </div>
+        </div>
+      </Modal>
     </>
   );
 }

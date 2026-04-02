@@ -1,10 +1,48 @@
 export type UniversityStatus =
   | 'pending'
+  | 'discovering'
   | 'crawling'
   | 'crawled'
   | 'analyzing'
   | 'completed'
   | 'failed';
+
+export type CrawlMode = 'auto' | 'cloudflare' | 'manual';
+
+export interface DiscoveredUrl {
+  url: string;
+  title: string;
+  path: string;
+  domain: string;
+  source: 'sitemap' | 'homepage' | 'manual';
+  depth_estimate: number;
+}
+
+export interface CrawlConfig {
+  max_depth: number;
+  max_pages: number;
+  excluded_patterns: string[];
+  focus_patterns: string[];
+  crawl_mode: CrawlMode;
+  manual_urls: string[];
+  user_excluded_urls: string[];
+}
+
+export interface CrawlStatus {
+  status: UniversityStatus;
+  crawl_mode: CrawlMode;
+  total_pages_crawled: number;
+  total_pages_analyzed: number;
+  manual_urls_count: number;
+  cf_available: boolean;
+  summary: Record<string, unknown>;
+}
+
+export interface DiscoverResult {
+  university_id: string;
+  total_discovered: number;
+  urls: DiscoveredUrl[];
+}
 
 export interface University {
   id: string;
@@ -16,6 +54,8 @@ export interface University {
   updated_at: string;
   pages_count: number;
   summary: UniversitySummary | null;
+  crawl_config: CrawlConfig;
+  discovered_urls: DiscoveredUrl[];
 }
 
 export interface UniversitySummary {
