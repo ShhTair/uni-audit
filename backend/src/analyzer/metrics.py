@@ -4,7 +4,7 @@ Computes scores across all analyzed pages.
 """
 
 import logging
-from collections import Counter, defaultdict
+from collections import Counter
 from datetime import datetime, timezone
 from typing import Any
 
@@ -13,12 +13,9 @@ from motor.motor_asyncio import AsyncIOMotorDatabase
 
 from src.models.tags import (
     ALL_CONTENT_TAGS,
-    CONTENT_TAG_GROUPS,
     EXPECTED_TAGS_BY_CATEGORY,
     ISSUE_TAGS_ACCESSIBILITY,
     ISSUE_TAGS_CONTENT,
-    ISSUE_TAGS_NAVIGATION,
-    ISSUE_TAGS_TECHNICAL,
     ISSUE_TAGS_UX,
 )
 

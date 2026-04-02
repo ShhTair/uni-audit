@@ -10,7 +10,6 @@ import asyncio
 import logging
 import time
 from datetime import datetime, timezone
-from typing import Optional
 from urllib.parse import urlparse
 
 import html2text

@@ -11,13 +11,13 @@ import time
 from collections import deque
 from datetime import datetime, timezone
 from typing import Optional
-from urllib.parse import urljoin, urlparse
+from urllib.parse import urlparse
 from urllib.robotparser import RobotFileParser
 
 import httpx
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
-from playwright.async_api import Browser, Page, async_playwright
+from playwright.async_api import Page, async_playwright
 
 from src.crawler.content_extractor import ContentExtractor
 from src.models.tags import LINK_LOCATION_WEIGHTS

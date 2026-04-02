@@ -21,10 +21,7 @@ from src.generator.guide_generator import generate_guide
 from pydantic import BaseModel
 
 from src.models.university import (
-    CrawlConfig,
     UniversityCreate,
-    UniversityResponse,
-    UniversitySummary,
     serialize_page,
     serialize_university,
     university_doc,
@@ -716,7 +713,7 @@ async def update_crawl_config(university_id: str, update: CrawlConfigUpdate) -> 
     if not uni:
         raise HTTPException(status_code=404, detail="University not found")
 
-    current_config = uni.get("crawl_config", {})
+    
     patch: dict[str, Any] = {}
 
     if update.crawl_mode is not None:
