@@ -1,16 +1,21 @@
 """
 Cloudflare Browser Rendering crawler.
 
-Uses Cloudflare's Browser Rendering API to:
-- Render pages with full JS execution (like a real browser)
-- Return clean Markdown content
+Two Cloudflare endpoints:
 
-Endpoints used:
-  Single page:  POST /client/v4/accounts/{id}/browser-rendering/content
-  Full site:    POST /client/v4/accounts/{id}/browser-rendering/crawl
+  /content  — render a single URL, return HTML + (optionally) Markdown
+  /crawl    — crawl entire site starting from a URL, return array of pages
 
-Requires CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN in settings.
-Falls back gracefully if credentials are not set.
+Both use full headless Chrome in Cloudflare's infrastructure, so:
+  - JS-rendered content is fully executed
+  - Bot protection is bypassed (CF's own infra)
+  - Dynamic React/Vue apps render correctly
+
+Credentials required in .env:
+  CLOUDFLARE_ACCOUNT_ID      (your CF account ID)
+  CLOUDFLARE_API_TOKEN       (API token with Browser Rendering permission)
+  — or —
+  CLOUDFLARE_GLOBAL_API_TOKEN  (Workers API token, cfk_... prefix)
 
 Docs: https://developers.cloudflare.com/browser-rendering/
 """
@@ -20,66 +25,108 @@ from datetime import datetime, timezone
 from typing import Optional
 from urllib.parse import urlparse
 
+import httpx
 from bson import ObjectId
 from motor.motor_asyncio import AsyncIOMotorDatabase
-import httpx
 
 from src.config import settings
 from src.crawler.content_extractor import ContentExtractor
+from src.crawler.html_cleaner import html_to_clean_markdown, estimate_content_quality
 
 logger = logging.getLogger("uni_audit.cf_crawler")
 
 CF_BASE = "https://api.cloudflare.com/client/v4/accounts"
 
+# Default render options applied to every request
+_RENDER_OPTIONS = {
+    "rejectResourceTypes": ["image", "media", "font", "stylesheet"],
+    "waitUntil": "networkidle0",
+    "gotoOptions": {"timeout": 25000},
+}
+
 
 def is_configured() -> bool:
     """Return True if Cloudflare credentials are available."""
-    return bool(settings.CLOUDFLARE_ACCOUNT_ID and settings.CLOUDFLARE_API_TOKEN)
+    return settings.cf_ready
 
 
-def _cf_headers() -> dict:
+def _headers() -> dict:
     return {
-        "Authorization": f"Bearer {settings.CLOUDFLARE_API_TOKEN}",
+        "Authorization": f"Bearer {settings.cf_token}",
         "Content-Type": "application/json",
     }
 
 
-async def fetch_page_markdown(url: str) -> Optional[str]:
+def _endpoint(path: str) -> str:
+    return f"{CF_BASE}/{settings.CLOUDFLARE_ACCOUNT_ID}/browser-rendering/{path}"
+
+
+def _parse_cf_response(data: dict, url: str) -> tuple[str, str]:
     """
-    Fetch a single page via Cloudflare Browser Rendering.
-    Returns the page as Markdown, or None on failure.
+    Extract html + markdown from a CF API response dict.
+    CF response shape:
+      { "success": true, "result": { "html": "...", "markdown": "...", ... } }
+    or for /crawl:
+      { "success": true, "result": [{ "url": "...", "html": "...", ... }] }
+    Returns (html, markdown).
+    """
+    if not data.get("success"):
+        errors = data.get("errors", [])
+        logger.warning("CF API error for %s: %s", url, errors)
+        return "", ""
+
+    result = data.get("result", {})
+
+    # /content returns a dict; /crawl returns a list
+    if isinstance(result, list):
+        # Find matching URL
+        for page in result:
+            if page.get("url", "").rstrip("/") == url.rstrip("/"):
+                result = page
+                break
+        else:
+            result = result[0] if result else {}
+
+    html = result.get("html", "") or ""
+    markdown = result.get("markdown", "") or ""
+
+    # If CF doesn't return markdown directly, generate it from HTML
+    if not markdown and html:
+        markdown = html_to_clean_markdown(html, base_url=url)
+
+    return html, markdown
+
+
+# ── Single-page fetch ─────────────────────────────────────────────────────────
+
+async def fetch_page_content(url: str) -> tuple[str, str]:
+    """
+    Render a single URL via CF Browser Rendering.
+    Returns (html, markdown). Both empty on failure.
     """
     if not is_configured():
-        logger.warning("Cloudflare credentials not configured — skipping CF fetch")
-        return None
-
-    endpoint = f"{CF_BASE}/{settings.CLOUDFLARE_ACCOUNT_ID}/browser-rendering/content"
+        logger.warning("CF not configured — cannot fetch %s", url)
+        return "", ""
 
     try:
-        async with httpx.AsyncClient(timeout=30) as client:
+        async with httpx.AsyncClient(timeout=40) as client:
             resp = await client.post(
-                endpoint,
-                headers=_cf_headers(),
-                json={
-                    "url": url,
-                    "screenshotOptions": {"omitBackground": False},
-                    "rejectResourceTypes": ["image", "media", "font"],
-                    "waitUntil": "networkidle0",
-                },
+                _endpoint("content"),
+                headers=_headers(),
+                json={"url": url, **_RENDER_OPTIONS},
             )
             if resp.status_code != 200:
-                logger.warning("CF API returned %d for %s: %s", resp.status_code, url, resp.text[:200])
-                return None
+                logger.warning("CF /content HTTP %d for %s: %s", resp.status_code, url, resp.text[:300])
+                return "", ""
 
-            data = resp.json()
-            # CF returns { result: { markdown: "...", html: "..." } }
-            result = data.get("result", {})
-            return result.get("markdown") or result.get("content") or None
+            return _parse_cf_response(resp.json(), url)
 
     except Exception as exc:
-        logger.error("Cloudflare fetch failed for %s: %s", url, exc)
-        return None
+        logger.error("CF /content exception for %s: %s", url, exc)
+        return "", ""
 
+
+# ── Full-site crawl ───────────────────────────────────────────────────────────
 
 async def crawl_site(
     db: AsyncIOMotorDatabase,
@@ -89,15 +136,13 @@ async def crawl_site(
     max_pages: int = 100,
 ) -> int:
     """
-    Use Cloudflare's /crawl endpoint to crawl an entire site.
-    Stores pages in MongoDB with markdown_content.
-    Returns number of pages stored.
+    Use CF /crawl to crawl an entire site.
+    Returns number of pages stored in MongoDB.
     """
     if not is_configured():
-        raise RuntimeError("Cloudflare credentials not configured")
+        raise RuntimeError("Cloudflare credentials not configured (CLOUDFLARE_ACCOUNT_ID + CLOUDFLARE_API_TOKEN)")
 
     uni_oid = ObjectId(university_id)
-    endpoint = f"{CF_BASE}/{settings.CLOUDFLARE_ACCOUNT_ID}/browser-rendering/crawl"
 
     await db.universities.update_one(
         {"_id": uni_oid},
@@ -108,55 +153,73 @@ async def crawl_site(
 
     try:
         async with httpx.AsyncClient(timeout=300) as client:
+            logger.info("CF /crawl starting from %s, max_pages=%d", start_url, max_pages)
             resp = await client.post(
-                endpoint,
-                headers=_cf_headers(),
+                _endpoint("crawl"),
+                headers=_headers(),
                 json={
                     "url": start_url,
                     "maxPages": max_pages,
-                    "outputFormat": "markdown",
-                    "rejectResourceTypes": ["image", "media", "font"],
-                    "waitUntil": "networkidle0",
-                    # Stay on same domains
                     "allowedDomains": domains,
+                    **_RENDER_OPTIONS,
                 },
             )
 
             if resp.status_code != 200:
-                logger.error("CF crawl API returned %d: %s", resp.status_code, resp.text[:500])
-                await db.universities.update_one(
-                    {"_id": uni_oid},
-                    {"$set": {"status": "failed", "updated_at": datetime.now(timezone.utc)}},
-                )
+                logger.error("CF /crawl HTTP %d: %s", resp.status_code, resp.text[:500])
+                await _set_failed(db, uni_oid)
                 return 0
 
             data = resp.json()
-            pages = data.get("result", {}).get("pages", [])
+            if not data.get("success"):
+                logger.error("CF /crawl errors: %s", data.get("errors", []))
+                await _set_failed(db, uni_oid)
+                return 0
 
-            for page_data in pages:
+            # Result can be a list directly or wrapped in result key
+            result = data.get("result", data)
+            if isinstance(result, dict):
+                pages_list = result.get("pages", [])
+            elif isinstance(result, list):
+                pages_list = result
+            else:
+                pages_list = []
+
+            logger.info("CF /crawl returned %d pages", len(pages_list))
+
+            for page_data in pages_list:
                 page_url = page_data.get("url", "")
-                markdown = page_data.get("markdown") or page_data.get("content", "")
-                html = page_data.get("html", "")
-
                 if not page_url:
                     continue
 
-                parsed = urlparse(page_url)
+                html = page_data.get("html", "") or ""
+                markdown = page_data.get("markdown", "") or ""
 
-                # Extract structured content from HTML if available
+                if not markdown and html:
+                    markdown = html_to_clean_markdown(html, base_url=page_url)
+
                 content = None
                 if html:
-                    extractor = ContentExtractor(html, page_url, domains)
-                    content = extractor.extract()
+                    try:
+                        extractor = ContentExtractor(html, page_url, domains)
+                        content = extractor.extract()
+                    except Exception:
+                        pass
 
+                parsed = urlparse(page_url)
                 depth = min(len(parsed.path.strip("/").split("/")), 5) if parsed.path.strip("/") else 0
+                md_quality = estimate_content_quality(markdown)
 
                 page_doc = {
                     "university_id": uni_oid,
                     "url": page_url,
                     "domain": parsed.hostname or "",
                     "path": parsed.path or "/",
-                    "title": (content.title if content else "") or page_data.get("title", ""),
+                    "title": (
+                        page_data.get("title")
+                        or (content.title if content else "")
+                        or parsed.path
+                    ),
                     "ai_title": "",
                     "status": "crawled",
                     "depth": depth,
@@ -178,7 +241,7 @@ async def crawl_site(
                         "external_link_count": content.external_link_count if content else 0,
                         "broken_links": [],
                         "load_time_ms": None,
-                        "has_dynamic_content": False,
+                        "has_dynamic_content": True,  # CF-rendered pages are always dynamic
                         "dynamic_elements": [],
                         "readability_score": content.readability_score if content else 50.0,
                         "mobile_friendly": None,
@@ -190,10 +253,18 @@ async def crawl_site(
                             [{"level": h.level, "text": h.text} for h in content.heading_structure]
                             if content else []
                         ),
+                        "markdown_quality_score": md_quality,
+                        "crawl_backend": "cloudflare",
                     },
-                    "outgoing_links": [],
+                    "outgoing_links": (
+                        [
+                            {"url": lnk.url, "text": lnk.text, "location": lnk.location, "is_internal": lnk.is_internal}
+                            for lnk in content.links
+                        ]
+                        if content else []
+                    ),
                     "incoming_links_count": 0,
-                    "raw_text": (content.main_text[:500_000] if content else markdown[:500_000]),
+                    "raw_text": (content.main_text[:500_000] if content else ""),
                     "markdown_content": markdown[:1_000_000],
                     "crawled_at": datetime.now(timezone.utc),
                     "analyzed_at": None,
@@ -203,11 +274,8 @@ async def crawl_site(
                 pages_stored += 1
 
     except Exception as exc:
-        logger.exception("Cloudflare crawl failed: %s", exc)
-        await db.universities.update_one(
-            {"_id": uni_oid},
-            {"$set": {"status": "failed", "updated_at": datetime.now(timezone.utc)}},
-        )
+        logger.exception("CF crawl_site failed: %s", exc)
+        await _set_failed(db, uni_oid)
         return pages_stored
 
     await db.universities.update_one(
@@ -221,5 +289,12 @@ async def crawl_site(
         },
     )
 
-    logger.info("CF crawl complete for %s: %d pages", university_id, pages_stored)
+    logger.info("CF crawl complete for %s: %d pages stored", university_id, pages_stored)
     return pages_stored
+
+
+async def _set_failed(db: AsyncIOMotorDatabase, uni_oid: ObjectId) -> None:
+    await db.universities.update_one(
+        {"_id": uni_oid},
+        {"$set": {"status": "failed", "updated_at": datetime.now(timezone.utc)}},
+    )

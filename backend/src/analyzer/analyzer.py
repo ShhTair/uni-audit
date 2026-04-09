@@ -530,11 +530,23 @@ class PageAnalyzer:
             page_id = page_doc["_id"]
             url = page_doc.get("url", "")
             try:
+                # Prefer clean Markdown over raw text — it's stripped of nav/footer noise
+                # and structured with proper headings, yielding much better AI analysis.
+                markdown_content = page_doc.get("markdown_content", "")
                 raw_text = page_doc.get("raw_text", "")
-                # Truncate: shorter for quick scan
-                max_text = 3000 if quick else 8000
-                if len(raw_text) > max_text:
-                    raw_text = raw_text[:max_text] + "\n...[truncated]..."
+
+                use_markdown = bool(markdown_content and len(markdown_content.strip()) > 100)
+                if use_markdown:
+                    content_text = markdown_content
+                    content_label = "Page content (Markdown — nav/footer stripped):"
+                    max_text = 5000 if quick else 14000
+                else:
+                    content_text = raw_text
+                    content_label = "Page content (plain text):"
+                    max_text = 3000 if quick else 8000
+
+                if len(content_text) > max_text:
+                    content_text = content_text[:max_text] + "\n...[truncated]..."
 
                 title = page_doc.get("title", "")
                 path = page_doc.get("path", "")
@@ -545,6 +557,8 @@ class PageAnalyzer:
                 )
                 word_count = page_doc.get("metrics", {}).get("word_count", 0)
                 meta_desc = page_doc.get("metrics", {}).get("meta_description", "")
+                crawl_backend = page_doc.get("metrics", {}).get("crawl_backend", "")
+                md_quality = page_doc.get("metrics", {}).get("markdown_quality_score", 0)
 
                 user_message = f"""Analyze this university web page:
 
@@ -554,12 +568,14 @@ Path: {path}
 Depth from homepage: {depth}
 Word count: {word_count}
 Meta description: {meta_desc or 'None'}
+Crawl backend: {crawl_backend or 'unknown'}
+Content quality score: {md_quality:.2f}
 
 Heading structure:
 {headings_text or 'No headings found'}
 
-Page content:
-{raw_text}"""
+{content_label}
+{content_text}"""
 
                 system_prompt = QUICK_SCAN_SYSTEM_PROMPT if quick else SYSTEM_PROMPT
                 max_tokens = 1500 if quick else settings.ANALYZER_MAX_TOKENS

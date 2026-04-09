@@ -3,7 +3,7 @@ Site URL discoverer — fast pre-crawl scan.
 
 Discovers URLs via:
 1. sitemap.xml / sitemap_index.xml / robots.txt sitemap directives
-2. Shallow homepage link extraction (depth 0-1, no JS rendering)
+2. Shallow homepage link extraction (depth 0-2, no JS rendering)
 
 Returns a flat list of DiscoveredUrl items so the user can manually
 select/exclude pages before the real crawl begins.
@@ -28,11 +28,34 @@ _HEADERS = {
     )
 }
 
-# Patterns for URLs we never want to discover
-_SKIP_PATTERNS = re.compile(
-    r"(\.pdf|\.doc|\.docx|\.xls|\.xlsx|\.ppt|\.zip|\.rar|"
-    r"#|mailto:|tel:|javascript:|/login|/portal|/my\.|"
-    r"/search\?|/calendar|/news/\d|/events/\d)",
+# File extensions — never useful for content analysis
+_SKIP_EXTENSIONS = re.compile(
+    r"\.(pdf|doc|docx|xls|xlsx|ppt|pptx|zip|rar|gz|tar|"
+    r"jpg|jpeg|png|gif|svg|webp|ico|mp4|mp3|avi|mov|"
+    r"css|js|json|xml|rss|atom|woff|woff2|ttf|eot)$",
+    re.IGNORECASE,
+)
+
+# URL patterns that indicate junk (CMS artifacts, tracking, login walls, etc.)
+_SKIP_URL_PATTERNS = re.compile(
+    r"(mailto:|tel:|javascript:|"
+    r"/wp-content/|/wp-includes/|/wp-json/|"
+    r"/feed/?$|/rss/?$|/atom/?$|"
+    r"/tag/|/tags/|/author/|/category/|/categories/|"
+    r"/page/\d+|[?&]p=\d|[?&]page=\d|"
+    r"/login|/logout|/signin|/signout|/register|/my\.|/portal/|/my-|"
+    r"/search[/?]|/\?s=|/\?q=|"
+    r"/print/?$|/print\?|"
+    r"/calendar/|/events/\d{4}|/news/\d{4}|"
+    r"[#?]|/cdn-cgi/)",
+    re.IGNORECASE,
+)
+
+# Admission-related keywords — used to boost sort order
+_ADMISSION_KEYWORDS = re.compile(
+    r"(admiss|apply|application|tuition|fee|scholar|financial[- ]aid|"
+    r"international|undergraduate|graduate|enroll|requirement|deadline|"
+    r"program|major|degree|visa|housing|accommodation|cost)",
     re.IGNORECASE,
 )
 
@@ -49,15 +72,40 @@ def _is_same_domain(url: str, domains: list[str]) -> bool:
 
 
 def _should_skip(url: str) -> bool:
-    return bool(_SKIP_PATTERNS.search(url))
+    parsed = urlparse(url)
+    # Skip files by extension
+    if _SKIP_EXTENSIONS.search(parsed.path):
+        return True
+    # Skip junk URL patterns
+    if _SKIP_URL_PATTERNS.search(url):
+        return True
+    return False
 
 
-def _depth_estimate(url: str, base_domain: str) -> int:
+def _depth_estimate(url: str) -> int:
     """Estimate crawl depth based on path segments."""
     path = urlparse(url).path.strip("/")
     if not path:
         return 0
     return min(len(path.split("/")), 6)
+
+
+def _is_admission_related(url: str, title: str = "") -> bool:
+    return bool(_ADMISSION_KEYWORDS.search(url) or _ADMISSION_KEYWORDS.search(title))
+
+
+def _clean_title(title: str) -> str:
+    """Strip site name suffix from titles (e.g. 'Admissions | University Name')."""
+    if not title:
+        return ""
+    # Remove common separators + everything after the last one
+    for sep in [" | ", " - ", " – ", " :: ", " › "]:
+        if sep in title:
+            parts = title.split(sep)
+            # If the last part is the longest it's probably the site name at the start
+            # Keep the most specific (usually first) segment
+            return parts[0].strip()
+    return title.strip()
 
 
 async def _fetch(client: httpx.AsyncClient, url: str) -> str | None:
@@ -68,6 +116,34 @@ async def _fetch(client: httpx.AsyncClient, url: str) -> str | None:
     except Exception as e:
         logger.debug("Fetch failed %s: %s", url, e)
     return None
+
+
+def _extract_title_from_html(html: str) -> str:
+    """Extract the best available title from an HTML document."""
+    soup = BeautifulSoup(html, "lxml")
+
+    # 1. <title> tag
+    title_el = soup.find("title")
+    if title_el:
+        t = _clean_title(title_el.get_text(strip=True))
+        if t and len(t) > 2:
+            return t
+
+    # 2. <h1> (main page heading — often more specific than <title>)
+    h1 = soup.find("h1")
+    if h1:
+        t = h1.get_text(strip=True)
+        if t and len(t) > 2:
+            return t[:100]
+
+    # 3. og:title meta tag
+    og = soup.find("meta", property="og:title")
+    if og and og.get("content"):
+        t = _clean_title(og["content"].strip())
+        if t:
+            return t
+
+    return ""
 
 
 async def _parse_sitemap(
@@ -107,13 +183,19 @@ async def _parse_sitemap(
             norm = _normalize(loc)
             if norm not in results:
                 p = urlparse(loc)
+                # sitemap <image:title> or <news:title> can provide a title hint
+                title_hint = (
+                    url_el.findtext("sm:title", namespaces=ns)
+                    or url_el.findtext("{http://www.google.com/schemas/sitemap-news/0.9}title")
+                    or ""
+                )
                 results[norm] = {
                     "url": loc,
-                    "title": "",
+                    "title": title_hint.strip() if title_hint else "",
                     "path": p.path or "/",
                     "domain": p.hostname or "",
                     "source": "sitemap",
-                    "depth_estimate": _depth_estimate(loc, domains[0]),
+                    "depth_estimate": _depth_estimate(loc),
                 }
     except ET.ParseError:
         pass
@@ -125,7 +207,7 @@ async def _discover_from_homepage(
     domains: list[str],
     results: dict,
 ) -> None:
-    """Extract links from homepage and one level down (navigation only)."""
+    """Extract links from homepage and one level down."""
     home_url = f"https://{domain}"
     html = await _fetch(client, home_url)
     if not html:
@@ -133,83 +215,88 @@ async def _discover_from_homepage(
 
     soup = BeautifulSoup(html, "lxml")
 
-    # Get title of homepage
+    # Homepage entry
     norm_home = _normalize(home_url)
     if norm_home not in results:
-        title = soup.find("title")
+        title_el = soup.find("title")
         results[norm_home] = {
             "url": home_url,
-            "title": title.get_text(strip=True) if title else domain,
+            "title": _clean_title(title_el.get_text(strip=True)) if title_el else domain,
             "path": "/",
             "domain": domain,
             "source": "homepage",
             "depth_estimate": 0,
         }
 
-    # Focus on nav/header links for top-level discovery
-    nav_selectors = ["nav", "header", '[role="navigation"]', ".navbar", ".main-nav", ".primary-nav"]
-    nav_links: list[str] = []
+    # ── Collect depth-1 links ──────────────────────────────────────────
+    # Navigation links first (highest signal), then all body links
+    nav_entries: list[tuple[str, str]] = []  # (url, link_text)
+    body_entries: list[tuple[str, str]] = []
 
+    nav_selectors = [
+        "nav", "header", '[role="navigation"]', '[role="banner"]',
+        ".navbar", ".main-nav", ".primary-nav", ".site-nav", "#main-nav",
+    ]
+    nav_els = set()
     for sel in nav_selectors:
-        for nav in soup.select(sel):
-            for a in nav.find_all("a", href=True):
-                href = a["href"].strip()
-                if not href or href.startswith("#"):
-                    continue
-                full = urljoin(home_url, href)
-                if _is_same_domain(full, domains) and not _should_skip(full):
-                    nav_links.append(full)
+        for el in soup.select(sel):
+            nav_els.add(id(el))
 
-    # Also get all links but limit to avoid explosion
-    all_links: list[str] = []
     for a in soup.find_all("a", href=True):
         href = a["href"].strip()
         if not href or href.startswith("#"):
             continue
         full = urljoin(home_url, href)
-        if _is_same_domain(full, domains) and not _should_skip(full):
-            all_links.append(full)
+        if not _is_same_domain(full, domains) or _should_skip(full):
+            continue
+        link_text = a.get_text(strip=True)[:80]
+        # Check if this anchor is inside a nav element
+        in_nav = any(id(p) in nav_els for p in a.parents)
+        if in_nav:
+            nav_entries.append((full, link_text))
+        else:
+            body_entries.append((full, link_text))
 
-    # Combine: nav links first, then rest (deduplicated, capped at 200)
-    seen = set()
-    combined = []
-    for url in nav_links + all_links:
+    # Deduplicate, nav links first
+    seen: set[str] = set()
+    combined: list[tuple[str, str]] = []
+    for url, text in nav_entries + body_entries:
         n = _normalize(url)
         if n not in seen:
             seen.add(n)
-            combined.append(url)
-        if len(combined) >= 200:
+            combined.append((url, text))
+        if len(combined) >= 250:
             break
 
-    # Fetch each nav-level page to get its title and sub-links
-    depth1_tasks = []
-    for url in combined[:60]:  # limit concurrent requests
+    # Add depth-1 entries with link text as title hint
+    depth1_to_fetch: list[str] = []
+    for url, link_text in combined:
         norm = _normalize(url)
         if norm not in results:
             p = urlparse(url)
             results[norm] = {
                 "url": url,
-                "title": "",
+                # Use link text as a title placeholder until we can fetch the real title
+                "title": link_text if link_text and len(link_text) > 2 else "",
                 "path": p.path or "/",
                 "domain": p.hostname or "",
                 "source": "homepage",
                 "depth_estimate": 1,
             }
-            depth1_tasks.append(url)
+            depth1_to_fetch.append(url)
 
-    # Fetch titles for depth-1 pages concurrently (limited)
-    async def _fetch_title(u: str) -> None:
+    # ── Fetch titles + depth-2 links for depth-1 pages ────────────────
+    async def _fetch_depth1(u: str) -> None:
         html2 = await _fetch(client, u)
         if not html2:
             return
         soup2 = BeautifulSoup(html2, "lxml")
-        title_el = soup2.find("title")
-        title = title_el.get_text(strip=True) if title_el else ""
+        real_title = _extract_title_from_html(html2)
         norm = _normalize(u)
-        if norm in results:
-            results[norm]["title"] = title
+        if norm in results and real_title:
+            results[norm]["title"] = real_title
 
-        # Also collect depth-2 links from this page
+        # Collect depth-2 links — no title fetching at this level
         for a in soup2.find_all("a", href=True):
             href = a["href"].strip()
             if not href or href.startswith("#"):
@@ -220,19 +307,20 @@ async def _discover_from_homepage(
             n2 = _normalize(full)
             if n2 not in results:
                 p2 = urlparse(full)
+                link_text2 = a.get_text(strip=True)[:80]
                 results[n2] = {
                     "url": full,
-                    "title": "",
+                    "title": link_text2 if link_text2 and len(link_text2) > 2 else "",
                     "path": p2.path or "/",
                     "domain": p2.hostname or "",
                     "source": "homepage",
                     "depth_estimate": 2,
                 }
 
-    # Run in batches of 10
-    for i in range(0, len(depth1_tasks), 10):
-        batch = depth1_tasks[i : i + 10]
-        await asyncio.gather(*[_fetch_title(u) for u in batch])
+    # Run in batches of 8 to avoid hammering the server
+    for i in range(0, len(depth1_to_fetch), 8):
+        batch = depth1_to_fetch[i: i + 8]
+        await asyncio.gather(*[_fetch_depth1(u) for u in batch])
 
 
 async def discover_site_urls(
@@ -242,6 +330,8 @@ async def discover_site_urls(
     """
     Discover all URLs for a university site.
     Returns list of dicts with url, title, path, domain, source, depth_estimate.
+
+    Sort order: depth 0 first, then admission-related pages, then alphabetical by path.
     """
     results: dict[str, dict] = {}
 
@@ -251,7 +341,7 @@ async def discover_site_urls(
         verify=False,
     ) as client:
         for domain in domains:
-            # 1. Try robots.txt to find sitemap pointers
+            # 1. Try robots.txt for sitemap pointers
             robots_text = await _fetch(client, f"https://{domain}/robots.txt")
             sitemap_urls: list[str] = []
             if robots_text:
@@ -261,25 +351,28 @@ async def discover_site_urls(
                         if sm_url:
                             sitemap_urls.append(sm_url)
 
-            # 2. Try common sitemap locations
+            # 2. Common sitemap locations
             sitemap_candidates = [
                 f"https://{domain}/sitemap.xml",
                 f"https://{domain}/sitemap_index.xml",
                 f"https://{domain}/sitemap-index.xml",
                 f"https://{domain}/wp-sitemap.xml",
-                f"https://{domain}/news-sitemap.xml",
             ]
             for sm_url in sitemap_urls + sitemap_candidates:
                 await _parse_sitemap(client, sm_url, domains, results)
                 if len(results) >= max_urls:
                     break
 
-            # 3. Homepage link discovery (always run for nav structure)
+            # 3. Homepage link discovery (always run — gives nav structure)
             await _discover_from_homepage(client, domain, domains, results)
 
-    # Sort: depth 0 first, then by path
     items = list(results.values())
-    items.sort(key=lambda x: (x["depth_estimate"], x["path"]))
 
-    # Cap at max_urls
+    # Sort: depth 0 → admission-related first → alphabetical by path
+    def _sort_key(item: dict) -> tuple:
+        depth = item["depth_estimate"]
+        is_admission = 0 if _is_admission_related(item["url"], item.get("title", "")) else 1
+        return (depth, is_admission, item["path"])
+
+    items.sort(key=_sort_key)
     return items[:max_urls]
