@@ -15,8 +15,7 @@ that converts to useful Markdown for AI analysis.
 """
 
 import re
-from typing import Optional
-from bs4 import BeautifulSoup, Tag
+from bs4 import BeautifulSoup
 import html2text
 
 # ── Elements to remove entirely ──────────────────────────────────────────────
